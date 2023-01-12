@@ -3,8 +3,9 @@
 </h1>
 
 <p align="center">
-  <a href="#"><img src="https://img.shields.io/github/stars/MirrorX-Desktop/MirrorX"></a>
-  <a href="#"><img src="https://img.shields.io/github/license/MirrorX-Desktop/MirrorX"></a>
+  <a href="#"><img src="https://img.shields.io/github/stars/pkptzx/danmu-app"></a>
+  <a href="#"><img src="https://img.shields.io/github/issues/pkptzx/danmu-app"></a>
+  <a href="#"><img src="https://img.shields.io/github/license/pkptzx/danmu-app"></a>
 </p>
 
 # 弹幕君
@@ -35,7 +36,7 @@
 ## 使用到的库
 项目使用 [Tauri](https://tauri.app/) + [Vue 3](https://vuejs.org/) + TypeScript  
 UI库: 
- - [quasar](https://quasar.dev/) 它的表单组件实在太丑了
+ - [quasar](https://quasar.dev/) 一个组件丰富的Vue3UI库, 但它的表单组件实在太丑了
  - [7css](https://khang-nd.github.io/7.css/) win7风格的组件
 
 ## 如何构建
@@ -51,20 +52,20 @@ cargo install tauri-cli
 ```console
 yarn tauri dev
 ```
->生成的可执行文件: `danmu-app\src-tauri\target\debug\danmu-app.exe`  
+>生成的可执行文件路径: `danmu-app\src-tauri\target\debug\danmu-app.exe`  
 >不建议分发此文件,体积较大,未编译优化,仅作为开发阶段测试调试
 
 2. 打包
 ```console
 yarn tauri build
 ```
->会生成安装文件: `danmu-app\src-tauri\target\release\bundle\msi\danmu-app_0.0.1_x64_en-US.msi`  
->生成的可执行文件: `danmu-app\src-tauri\target\debug\danmu-app.exe`
+>生成安装文件路径: `danmu-app\src-tauri\target\release\bundle\msi\danmu-app_0.0.1_x64_en-US.msi`  
+>生成的可执行文件路径: `danmu-app\src-tauri\target\release\danmu-app.exe`
 
 ## 可用平台
 >都可以支持,我只是懒得编译
 - [x] Windows
-- [ ] macOS
+- [ ] macOS (WIP)
 - [ ] Linux (WIP)
 
 ## 常用 Tauri 插件
@@ -83,4 +84,4 @@ yarn tauri build
 - Rust API https://docs.rs/tauri/latest/tauri/
 - awesome-tauri https://github.com/tauri-apps/awesome-tauri
 - plugins-workspace https://github.com/tauri-apps/plugins-workspace
-- 
+
