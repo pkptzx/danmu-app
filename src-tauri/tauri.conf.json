@@ -1,0 +1,75 @@
+{
+  "build": {
+    "beforeDevCommand": "yarn install && yarn dev",
+    "beforeBuildCommand": "yarn install && yarn build",
+    "devPath": "http://localhost:1420",
+    "distDir": "../dist",
+    "withGlobalTauri": false
+  },
+  "package": {
+    "productName": "danmu-app",
+    "version": "0.0.1"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": true,
+      "http": {
+        "all": true,
+        "scope": ["https://api.live.bilibili.com/*","http://api.bilibili.com/*","https://api.bilibili.com/*","https://live-open.biliapi.com/*","http://api.vc.bilibili.com/*"]
+      }
+    },
+    "bundle": {
+      "active": true,
+      "category": "DeveloperTool",
+      "copyright": "",
+      "deb": {
+        "depends": []
+      },
+      "externalBin": [],
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ],
+      "identifier": "icu.lazy.danmuapp",
+      "longDescription": "",
+      "macOS": {
+        "entitlements": null,
+        "exceptionDomain": "",
+        "frameworks": [],
+        "providerShortName": null,
+        "signingIdentity": null
+      },
+      "resources": [],
+      "shortDescription": "",
+      "targets": "all",
+      "windows": {
+        "certificateThumbprint": null,
+        "digestAlgorithm": "sha256",
+        "timestampUrl": ""
+      }
+    },
+    "security": {
+      "csp": null
+    },
+    "updater": {
+      "active": false
+    },
+    "windows": [
+      {
+        "label": "main",
+        "title": "弹幕君",
+        "height": 800,
+        "width": 800,
+        "resizable": true,
+        "transparent": true,
+        "fullscreen": false,
+        "center": true,
+        "decorations": false
+      }
+
+    ]
+  }
+}
