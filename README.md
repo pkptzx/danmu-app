@@ -9,7 +9,10 @@
 </p>
 
 # 弹幕君
-弹幕君一个没有啥目标的查看哔哩哔哩直播弹幕工具
+弹幕君一个没有啥目标的查看哔哩哔哩直播弹幕工具  
+
+下载地址 https://github.com/pkptzx/danmu-app/releases danmu-app.zip
+
 
 ## 功能
 - 通过获取Chrome浏览器登录的B站Cookies获取主播ID
