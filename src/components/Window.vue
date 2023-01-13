@@ -6,7 +6,7 @@
         title
       }}</div>
       <div class="title-bar-controls">
-        <button aria-label="Top" @click="onTop"><q-icon name="push_pin" color="white" :class="{'rotate-315':top}" style="color: #ccc; font-size: 1.4em;"></q-icon></button>
+        <button aria-label="Top" @click="onTop"><q-icon name="o_push_pin" color="white" :class="{'rotate-315':top}" size="1.4em"></q-icon></button>
         <button aria-label="Minimize" @click="onMinimize"></button>
         <button aria-label="Maximize" @click="onMaximize"></button>
         <button aria-label="Close" @click="onClose"></button>
