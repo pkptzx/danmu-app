@@ -6,6 +6,7 @@
         title
       }}</div>
       <div class="title-bar-controls">
+        <button aria-label="Top" @click="onTop"><q-icon name="push_pin" color="white" :class="{'rotate-315':top}" style="color: #ccc; font-size: 1.4em;"></q-icon></button>
         <button aria-label="Minimize" @click="onMinimize"></button>
         <button aria-label="Maximize" @click="onMaximize"></button>
         <button aria-label="Close" @click="onClose"></button>
@@ -19,6 +20,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import { confirm } from '@tauri-apps/api/dialog';
 import { exit } from '@tauri-apps/api/process';
 import { appWindow } from '@tauri-apps/api/window';
@@ -26,8 +28,13 @@ defineProps({
   title: String,
   icon: String
 })
+const top = ref(false);
 
 
+const onTop = (e: Event) => {
+  top.value = !top.value
+  appWindow?.setAlwaysOnTop(top.value)
+}
 const onMinimize = (e: Event) => {
   appWindow?.minimize();
 }
