@@ -59,7 +59,7 @@ const onClose = async (e: Event) => {
   }
 }
 </script>
-<style lang="css" src="7.css/dist/7.scoped.css"  scoped>
+<style lang="css" src="7.css/dist/gui/window.css" scoped>
 
 </style>
 <style scoped>
