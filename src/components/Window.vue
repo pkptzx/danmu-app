@@ -7,7 +7,7 @@
       }}</div>
       <div class="title-bar-controls">
         <button aria-label="Top" @click="onTop">
-          <q-icon name="o_push_pin" color="white" :class="{'rotate-315':top}" size="1.2em" style="text-shadow: 0 1px gray, 1px 0 gray, -1px 0 gray, 0 -1px gray;"></q-icon>
+          <q-icon name="o_push_pin" color="white" :class="{'rotate-315':top}" size="1.2em" style="text-shadow: 0px 0px 2px black,1px 0px gray,0px 1px gray,-1px 0px gray,0px -1px gray;"></q-icon>
         </button>
         <button aria-label="Minimize" @click="onMinimize"></button>
         <button aria-label="Maximize" @click="onMaximize"></button>
