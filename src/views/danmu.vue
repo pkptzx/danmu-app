@@ -101,6 +101,7 @@ const msger_chat = ref()
 const show_join = ref(true)
 const show_follow = ref(true)
 const wintop = ref(false)
+appWindow.setAlwaysOnTop(wintop.value);
 const show_face = ref(false)
 const my_uid = ref()
 const dmMsg = ref('')

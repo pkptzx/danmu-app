@@ -7,7 +7,7 @@
       }}</div>
       <div class="title-bar-controls">
         <button aria-label="Top" @click="onTop">
-          <q-icon name="o_push_pin" color="white" :class="{'rotate-315':top}" size="1.2em" style="text-shadow: 0px 0px 2px black,1px 0px gray,0px 1px gray,-1px 0px gray,0px -1px gray;"></q-icon>
+          <q-icon name="o_push_pin" color="white" :class="{'rotate-315':wintop}" size="1.2em" style="text-shadow: 0px 0px 2px black,1px 0px gray,0px 1px gray,-1px 0px gray,0px -1px gray;"></q-icon>
         </button>
         <button aria-label="Minimize" @click="onMinimize"></button>
         <button aria-label="Maximize" @click="onMaximize"></button>
@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { confirm } from '@tauri-apps/api/dialog';
 import { exit } from '@tauri-apps/api/process';
 import { appWindow } from '@tauri-apps/api/window';
@@ -30,12 +30,14 @@ defineProps({
   title: String,
   icon: String
 })
-const top = ref(false);
-
+const wintop = ref(false);
+appWindow.setAlwaysOnTop(wintop.value);
+watch(wintop, (newTop) => {
+    appWindow.setAlwaysOnTop(newTop);
+})
 
 const onTop = (e: Event) => {
-  top.value = !top.value
-  appWindow?.setAlwaysOnTop(top.value)
+  wintop.value = !wintop.value
 }
 const onMinimize = (e: Event) => {
   appWindow?.minimize();
