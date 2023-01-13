@@ -1,6 +1,6 @@
 <template>
   <div class="win7">
-  <div class="window glass active">
+  <div class="window glass active" style="box-shadow: unset;">
     <div data-tauri-drag-region class="title-bar">
       <div class="title-bar-text"><img src="../assets/vue.svg" style="width: 16px;height: 16px;border: 0px" />{{
         title
@@ -65,5 +65,8 @@ const onClose = async (e: Event) => {
 <style scoped>
 :deep(.window) {
   box-shadow: unset;
+}
+html,body {
+  background-color: transparent !important;
 }
 </style>
