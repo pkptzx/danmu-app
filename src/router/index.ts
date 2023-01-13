@@ -10,9 +10,9 @@ const router = createRouter({
       component: Greet,
     },
     {
-      path: "/autoreply",
-      name: "autoreply",
-      component: () => import("../views/autoreply.vue"),
+      path: "/chatgtp",
+      name: "chatgtp",
+      component: () => import("../views/chatgtp.vue"),
     },
     {
       path: "/danmu/:room_id",

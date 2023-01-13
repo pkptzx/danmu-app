@@ -167,15 +167,15 @@ async function unshortcut() {
 }
 
 //新窗口示例
-function open_autoreply() {
-  let autoreplyWindow = WebviewWindow.getByLabel('autoreply');
-  if (autoreplyWindow) {
-    autoreplyWindow.unminimize();
-    autoreplyWindow.setFocus();
+function open_chatgtp() {
+  let chatgtpWindow = WebviewWindow.getByLabel('chatgtp');
+  if (chatgtpWindow) {
+    chatgtpWindow.unminimize();
+    chatgtpWindow.setFocus();
     return;
   }
-  autoreplyWindow = new WebviewWindow('autoreply', {
-    url: '/autoreply',
+  chatgtpWindow = new WebviewWindow('chatgtp', {
+    url: '/chatgtp',
     "fullscreen": false,
     "height": 300,
     "resizable": true,
@@ -187,13 +187,13 @@ function open_autoreply() {
     "transparent": true,
     "center":true
   });
-  autoreplyWindow.once('tauri://created', function () {
-    autoreplyWindow?.show();
+  chatgtpWindow.once('tauri://created', function () {
+    chatgtpWindow?.show();
   });
-  autoreplyWindow.once('tauri://error', function (e) {
+  chatgtpWindow.once('tauri://error', function (e) {
     console.error(e)
-    autoreplyWindow.unminimize();
-    autoreplyWindow.setFocus();
+    chatgtpWindow.unminimize();
+    chatgtpWindow.setFocus();
   });
 }
 async function show_danmu(room_id) {
@@ -288,7 +288,7 @@ async function send_event_to_danmu2() {
         <div> 
           <button class="x" type="button" @click="shortcut()">JS设置快捷键Ctrl+L</button>
           <button class="x" type="button" @click="unshortcut()">JS取消快捷键Ctrl+L</button>
-          <button class="x" type="button" @click="open_autoreply()">JS新窗口示例</button>
+          <button class="x" type="button" @click="open_chatgtp()">ChatGTP示例</button>
         </div> 
         <div> 
           <button class="x" type="button" @click="send_event_to_danmu()">测试发送全局消息给弹幕窗口</button>

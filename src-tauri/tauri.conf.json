@@ -15,7 +15,7 @@
       "all": true,
       "http": {
         "all": true,
-        "scope": ["https://api.live.bilibili.com/*","http://api.bilibili.com/*","https://api.bilibili.com/*","https://live-open.biliapi.com/*","http://api.vc.bilibili.com/*"]
+        "scope": ["https://api.live.bilibili.com/*","http://api.bilibili.com/*","https://api.bilibili.com/*","https://live-open.biliapi.com/*","http://api.vc.bilibili.com/*","https://cc-api.sbaliyun.com/*"]
       }
     },
     "bundle": {
