@@ -213,6 +213,7 @@ async function addData(data) {
     }
     if (data.type == 'DANMU_MSG') {
         updateFace(data).then()
+        emit('save_danmu_msg', data.body);
     }
     autoreply(data)
 }

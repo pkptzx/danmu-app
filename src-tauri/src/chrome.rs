@@ -5,9 +5,11 @@ use aes_gcm::{
 };
 use std::collections::HashMap;
 use std::path::Path;
-use windows::Win32::{Security::Cryptography::CRYPTOAPI_BLOB};
+use windows::Win32::{Security::Cryptography::CRYPT_INTEGER_BLOB};
+use sqlx::{Connection, Row};
+use base64::Engine;
 
-pub fn get_raw_cookies(host_url: &str) -> HashMap<String, Vec<u8>> {
+pub async fn get_raw_cookies(host_url: &str) -> HashMap<String, Vec<u8>> {
     let app_data_path = std::env::var("LOCALAPPDATA").unwrap();
     // println!("{app_data_path}");
     let mut cookies_db_path =
@@ -20,17 +22,12 @@ pub fn get_raw_cookies(host_url: &str) -> HashMap<String, Vec<u8>> {
         panic!("Cookies 未发现,你确定安装了Chrome浏览器?");
     }
 
-    let conn = rusqlite::Connection::open(cookies_db_path).unwrap();
-    let mut stmt = conn
-        .prepare("SELECT name,encrypted_value FROM cookies where host_key = ?")
-        .unwrap();
-    let mut rows = stmt.query(rusqlite::params![host_url]).unwrap();
+    let mut conn = sqlx::SqliteConnection::connect(format!("sqlite:{}",cookies_db_path).as_str()).await.unwrap();
+    let rows = sqlx::query("SELECT name,encrypted_value FROM cookies where host_key = ?").bind(host_url).fetch_all(&mut conn).await.unwrap();
     let mut data: HashMap<String, Vec<u8>> = HashMap::new();
-
-    while let Some(row) = rows.next().unwrap() {
-        let encrypted_value_ref = row.get_ref_unwrap(1);
-        let encrypted_value = encrypted_value_ref.as_bytes().unwrap();
-        data.insert(row.get(0).unwrap(), encrypted_value.to_vec());
+    for row in rows {
+        let encrypted_value_ref = row.get_unchecked::<Vec<u8>, usize>(1);
+        data.insert(row.get_unchecked(0), encrypted_value_ref);
     }
     data
 }
@@ -55,7 +52,7 @@ pub fn get_key() -> Vec<u8> {
         .as_str()
         .unwrap();
     // println!("{encrypted_key:?}");
-    let encrypted_key_bytes = base64::decode(encrypted_key).unwrap();
+    let encrypted_key_bytes = base64::engine::general_purpose::STANDARD_NO_PAD.decode(encrypted_key).unwrap();
 
     let encrypted_key_bytes = &encrypted_key_bytes[5..];
     // println!("{:?}", encrypted_key);
@@ -72,11 +69,11 @@ pub fn decrypt_string(key: &[u8], data: &[u8]) -> String {
     String::from_utf8(plaintext).unwrap()
 }
 fn crypt_unprotect_data(data: &[u8]) -> &[u8] {
-    let mut out = CRYPTOAPI_BLOB::default();
+    let mut out = CRYPT_INTEGER_BLOB::default();
     let mut data_vec = data.to_vec();
     let _rst = unsafe {
         let size = u32::try_from(data.len()).unwrap();
-        let p_data_in = CRYPTOAPI_BLOB {
+        let p_data_in = CRYPT_INTEGER_BLOB {
             cbData: size,
             pbData: data_vec.as_mut_ptr(),
         };

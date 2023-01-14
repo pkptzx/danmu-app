@@ -16,6 +16,10 @@
       "http": {
         "all": true,
         "scope": ["https://api.live.bilibili.com/*","http://api.bilibili.com/*","https://api.bilibili.com/*","https://live-open.biliapi.com/*","http://api.vc.bilibili.com/*","https://cc-api.sbaliyun.com/*"]
+      },
+      "fs": {
+        "all": true,
+        "scope": ["$APPCONFIG/*","$APPDATA/*","$APPLOCALDATA/*","$APPCACHE/*","$APPLOG/*","$AUDIO/*","$CACHE/*","$CONFIG/*","$DATA/*","$LOCALDATA/*","$DESKTOP/*","$DOCUMENT/*","$DOWNLOAD/*","$EXE/*","$FONT/*","$HOME/*","$PICTURE/*","$PUBLIC/*","$RUNTIME/*","$TEMPLATE/*","$VIDEO/*","$RESOURCE/*","$APP/*","$LOG/*","$TEMP/*"]
       }
     },
     "bundle": {
@@ -33,7 +37,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "icu.lazy.danmuapp",
+      "identifier": "danmuapp",
       "longDescription": "",
       "macOS": {
         "entitlements": null,

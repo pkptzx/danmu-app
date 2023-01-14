@@ -18,12 +18,20 @@ serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.2", features = ["api-all"] }
 tauri-plugin-positioner = "1.0"
-base64 = "0.20.0"
+# tauri-plugin-sql = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev", features = ["sqlite"] }
+base64 = "0.21.0"
 aes-gcm = "0.10.1"
-rusqlite = { version = "0.28.0", features = ["bundled"] }
+# rusqlite = { version = "0.28.0", features = ["bundled"] }
+sqlx = { version = "0.6", features = ["runtime-tokio-rustls", "json"] }
+tokio = { version = "1", features = ["sync"] }
+
+[dependencies.tauri-plugin-sql]
+git = "https://github.com/tauri-apps/plugins-workspace"
+branch = "dev"
+features = ["sqlite"] # or "postgres", or "mysql"
 
 [dependencies.windows]
-version = "0.43.0"
+version = "0.44.0"
 features = [
     "Data_Xml_Dom",
     "Win32_Foundation",

@@ -6,18 +6,22 @@ import { appWindow,WebviewWindow,getAll,PhysicalPosition,LogicalPosition,current
 import { confirm } from '@tauri-apps/api/dialog';
 import { register,isRegistered,unregister  } from '@tauri-apps/api/globalShortcut';
 import { fetch,Body } from '@tauri-apps/api/http';
+import { appCacheDir, resourceDir, appDataDir,runtimeDir, resolveResource, resolve } from '@tauri-apps/api/path';
+import { exists, readDir, BaseDirectory } from '@tauri-apps/api/fs';
 import Window from './Window.vue';
-import pako from 'pako'
 import { emit,listen } from '@tauri-apps/api/event';
 import * as bApi from '../assets/js/biliApi.js';
+import * as DataBase from '../assets/js/db.js';
 import 'animate.css';
+
 
 const greetMsg = ref("");
 const rooms = ref([]);
 const hot_rooms = ref([]);
 const followrooms = ref([]);
 const input = ref("");
-
+let db;
+let listen_save_danmu_msg;
 const uidOptions = ref([{'uid':'8094023','uname':'码之魂'},{'uid':'3796382','uname':'冬灰条'}])
 let roomid = ref(3796382)//self 8094023 dht 3796382//点击获取直播间房号时会被覆盖
 let unlisten:any;
@@ -27,21 +31,33 @@ onMounted(async () => {
     console.log(`Got error: ${event.payload.msg}`);
   });
   get_live_ups()
+  db = await DataBase.init_db()
   //接收全局消息,可以多次订阅全局消息,订阅了都能收到
   await listen<string>('dmMsg', (event: any) => {
-        // console.log(`Got2 dmMsg: ${event.payload.msg}`);
-    });
-    await listen<string>('send_dm', (event: any) => {
-      bApi.send_danmu(roomid.value,event.payload.msg)
-      .then((resp: any)=>{
+    // console.log(`Got2 dmMsg: ${event.payload.msg}`);
+  });
+  listen_save_danmu_msg = await listen<string>('save_danmu_msg', (event: any) => {
+    DataBase.insert_danmu_msg(db, event.payload);
+  });
+  await listen<string>('send_dm', (event: any) => {
+    bApi.send_danmu(roomid.value, event.payload.msg)
+      .then((resp: any) => {
         console.log(resp);
         greetMsg.value = JSON.stringify(resp);
       });
-    });
+  });
 });
 onUnmounted(async () => {
   await unlisten();
+  await listen_save_danmu_msg();
+  await db.close();
 });
+async function testdb(){
+  const rst = await db.select("select * from danmu_msg");
+  console.log(rst);
+  const rst2 = await db.select("select * from danmu_msg where gradient not null");
+  console.log(rst2);
+}
 async function hot_rank_list(){
   bApi.getHotRankList().then((v)=>{
     hot_rooms.value.length=0
@@ -107,14 +123,38 @@ async function send_msg(){
     console.log(resp);
     greetMsg.value = JSON.stringify(resp.data);})
 }
-
+async function test_fs(){
+  const current_path = await invoke('get_current_path');
+  console.log('current_path',current_path);
+  const appDataDirPath = await appDataDir();
+  console.log('appDataDirPath',appDataDirPath);
+  const path = await resolve(appDataDirPath, '..', 'users', 'tauri', 'avatar.png');
+  console.log('appDataDirPath拼接',path);
+  const resourcePath = await resolveResource('script.sh');
+  console.log('resourcePath拼接',resourcePath);
+  const resourceDirPath = await resourceDir();
+  console.log('resourceDirPath',resourceDirPath);
+  
+  //遍历文件夹
+  const entries = await readDir('EBWebView', { dir: BaseDirectory.AppLocalData, recursive: true });
+  function processEntries(entries) {
+    for (const entry of entries) {
+      console.log(`Entry: ${entry.path}`);
+      if (entry.children) {
+        processEntries(entry.children)
+      }
+    }
+  }
+  processEntries(entries);
+}
 async function get_live_roomid() {
   const cookies = await bApi.getCookies();
+  console.log(cookies);
   const bid = cookies.DedeUserID
   //通过bid获取直播间id
   bApi.getAccInfo(bid).then((resp: any)=>{
     console.log(resp);
-    let log = `主播信息:<br/>名字: ${resp.data.data.name} 用户id:${bid}<br/>直播间信息:ID:${resp.data.data.live_room.roomid} <br/>直播间标题:${resp.data.data.live_room.title} <br/> 当前是否直播:${resp.data.data.live_room.liveStatus === 0 ? '未开播' : '直播中'}`;
+    let log = `主播信息:<br/>名字: ${resp.data.data.name} 用户id:${bid}<br/>直播间信息:ID:${resp.data.data.live_room.roomid} <br/>直播间标题:${resp.data.data.live_room.title} <br/> 当前是否直播:${resp.data.data.live_room.liveStatus === 0 ? '未开播' : '直播中'} <br/> 当前路径: ${current_path}`;
     roomid.value = resp.data.data.live_room.roomid
     greetMsg.value = log;
   });
@@ -259,7 +299,7 @@ async function layout_danmu_win() {
 }
 let count = 0;
 async function send_event_to_danmu() {
-  await emit('dmMsg', { msg: '消息消息消息'+count++ });a
+  await emit('dmMsg', { msg: '消息消息消息'+count++ });
 }
 
 async function send_event_to_danmu2() {
@@ -288,6 +328,7 @@ async function send_event_to_danmu2() {
         <div> 
           <button class="x" type="button" @click="shortcut()">JS设置快捷键Ctrl+L</button>
           <button class="x" type="button" @click="unshortcut()">JS取消快捷键Ctrl+L</button>
+          <button class="x" type="button" @click="testdb">testdb</button>
           <button class="x" type="button" @click="open_chatgtp()">ChatGTP示例</button>
         </div> 
         <div> 

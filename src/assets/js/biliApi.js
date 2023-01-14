@@ -162,6 +162,24 @@ async function getLivesInfo(uids){
 //主播信息,获取头像等
 // https://api.live.bilibili.com/live_user/v1/Master/info?uid=uid
 
+// 获取主播核心数据 range_type=今日1 7日2 近30日3
+// https://api.live.bilibili.com/xlive/app-blink/v1/date/CoreData?platform=web&mobi_app=web&build=1&range_type=1
+async function getCoreData(range_type){
+  const cookies = await getCookies();
+  const cookies_raw_string = toCookiesPlainText(cookies);
+  const url = "https://api.live.bilibili.com/xlive/app-blink/v1/date/CoreData?platform=web&mobi_app=web&build=1&range_type="
+    return fetch(`${url}?${range_type}`,{
+      method: 'GET',
+      headers: {
+        "cookie" : cookies_raw_string,
+        "referer":"https://live.bilibili.com/",
+        "origin":"https://live.bilibili.com",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "same-site"
+    }
+    })
+  }
+
 export {
     getHotRankList,
     getGuardRankList,
@@ -173,7 +191,8 @@ export {
     getLiveRoomInfo,
     getUpInfo,
     getLiveUps,
-    getLivesInfo
+    getLivesInfo,
+    getCoreData
 
   };
 
