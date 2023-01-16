@@ -55,6 +55,8 @@
                                 <q-chat-message v-if="item.type == 'INTERACT_WORD' && item.body.action == 'enter'" :label="'<span style=\'color:#8cd9ff;\'>' + item.body.user.uname + '</span> 进入直播间'" label-html />
                                 <q-chat-message v-if="item.type == 'INTERACT_WORD' && item.body.action == 'follow'" 
                                 :label="'<span style=\'color:#8cd9ff;\'>' + item.body.user.uname + '</span> <span style=\'color:red;\'>关注直播间</span>'" label-html />
+                                <q-chat-message v-if="item.cmd == 'LIKE_INFO_V3_CLICK'" 
+                                :label="'<span style=\'color:#8cd9ff;\'>' + item.data.uname + '</span> <span style=\'color:green;\'>点赞了直播间</span>'" label-html />
                                 <q-chat-message v-if="item.type == 'DANMU_MSG'" 
                                 :name="(item.body.user.uid == up_uid ? ('<span style=\'color:red;\'>[主播]</span>'): '')+(item.body.user.identity.room_admin ? ('<span style=\'color:red;\'>[房]</span>'): '') + item.body.user.uname" name-html
                                     :avatar="show_face ? (item.body.user.face ? item.body.user.face : 'https://i0.hdslb.com/bfs/face/member/noface.jpg_48x48.jpg') : undefined"
@@ -175,7 +177,7 @@ onMounted(async () => {
         },
         onIncomeSuperChat: (msg) => {
             console.log(msg.id, msg.body)
-        },
+        },        
         onUserAction: (msg) => {
             const body: UserActionMsg = msg.body;
             if (body.action == 'enter') {
@@ -193,6 +195,13 @@ onMounted(async () => {
             }
 
         },
+        raw: {
+            // 点赞
+            'LIKE_INFO_V3_CLICK': (msg) => {
+                console.log(msg)
+                addData(msg)
+            },
+        }
     }
 
     danmuClient = startListen(room_id, handler)
@@ -245,6 +254,11 @@ async function autoreply(msg){
     }
     if (msg.type == 'INTERACT_WORD' && msg.body.action == 'follow'){
         bApi.send_danmu(room_id,`[花]感谢${msg.body.user.uname.length>12 ? (msg.body.user.uname.substring(0,9) + '...') :msg.body.user.uname}的关注`).then((resp: any)=>{
+            console.log('自动回复',resp);
+        });
+    }
+    if (msg.cmd == 'LIKE_INFO_V3_CLICK'){
+        bApi.send_danmu(room_id,`[哇]感谢${msg.data.uname.length>12 ? (msg.data.uname.substring(0,9) + '...') :msg.data.uname}的点赞`).then((resp: any)=>{
             console.log('自动回复',resp);
         });
     }
