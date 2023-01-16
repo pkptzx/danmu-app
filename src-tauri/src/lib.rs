@@ -111,17 +111,12 @@ async fn select(
     for (i, v) in values.iter().enumerate() {
         statement.raw_bind_parameter(i + 1, get_type_value(&v))?;
     }
-    let column_names = statement.column_names();
-    let mut names = Vec::new();
-    for name in column_names.iter() {
-        names.push(name.to_string());
-    }
     let column_count = statement.column_count();
     let mut rows = statement.raw_query();
     while let Some(row) = rows.next()? {
         let mut data = std::collections::HashMap::default();
         for idx in 0..column_count {
-            let name = names.get(idx).unwrap();
+            let name = row.as_ref().column_name(idx).unwrap().to_string();
             let value = row.get_ref_unwrap(idx);
             let v = match value.data_type() {
                 rusqlite::types::Type::Real => json!(value.as_f64_or_null().unwrap()),
