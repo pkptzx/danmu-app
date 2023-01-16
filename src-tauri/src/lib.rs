@@ -48,7 +48,7 @@ async fn close(state: State<'_, SqliteMap>, path: String) -> Result<bool> {
 }
 
 #[command]
-fn execute(
+async fn execute(
     state: State<'_, SqliteMap>,
     path: String,
     sql: String,
