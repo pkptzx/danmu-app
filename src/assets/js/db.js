@@ -100,8 +100,9 @@ export async function insert_danmu_msg(db,data){
 
     const sql = gen_insert_sql("danmu_msg",item);
     console.log(sql);
-    const rst = await db.execute(sql);
-    console.log("保存弹幕结果: ",rst);
+    db.execute(sql).then(r=>{
+        console.log("保存弹幕结果: ",r);
+    });
 }
 
 export async function get_danmu_msg(db,filter,pageNum,pageSize){

@@ -48,16 +48,6 @@ onMounted(async () => {
   await listen<string>('dmMsg', (event: any) => {
     // console.log(`Got2 dmMsg: ${event.payload.msg}`);
   });
-  listen_save_danmu_msg = await listen<string>('save_danmu_msg', (event: any) => {
-    DataBase.insert_danmu_msg(db, event.payload);
-  });
-  await listen<string>('send_dm', (event: any) => {
-    bApi.send_danmu(roomid.value, event.payload.msg)
-      .then((resp: any) => {
-        console.log(resp);
-        greetMsg.value = JSON.stringify(resp);
-      });
-  });
   // 获取主播核心数据
   getCoreData()
   coredata_Interval = setInterval(getCoreData,10000)

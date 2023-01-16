@@ -243,7 +243,8 @@ async function addData(data) {
         data.body.upid = up_uid.value;
         data.body.upname = up_name.value;
         data.body.roomid = room_id;
-        emit('save_danmu_msg', data.body);
+        // emit('save_danmu_msg', data.body);
+        DataBase.insert_danmu_msg(db, data.body);
     }
     autoreply(data)
 }
