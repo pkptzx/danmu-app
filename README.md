@@ -42,6 +42,13 @@ UI库:
  - [quasar](https://quasar.dev/) 一个组件丰富的Vue3UI库, 但它的表单组件实在太丑了
  - [7css](https://khang-nd.github.io/7.css/) win7风格的组件
 
+Rust中使用的库:
+ - serde_json
+ - aes-gcm
+ - base64 升级后变复杂了亿点点
+ - rusqlite
+ - windows-rs 每次升级版本API就变化,受不了...
+
 ## 如何构建
 ### 先决条件
 1. 已安装 `nodejs && yarn(v3)` 。
@@ -73,7 +80,7 @@ yarn tauri build
 
 ## 常用 Tauri 插件
 - 日志`官方` https://github.com/tauri-apps/tauri-plugin-log
-- 数据库支持`官方` https://github.com/tauri-apps/tauri-plugin-sql
+- ~~数据库支持`官方` https://github.com/tauri-apps/tauri-plugin-sql~~ `不要用,害死人`  
 - 持久化KV存储`官方` https://github.com/tauri-apps/tauri-plugin-window-state
 - 保存窗口位置和大小`官方` https://github.com/tauri-apps/plugins-workspace/tree/dev/plugins/window-state
 - 自启`官方` https://github.com/tauri-apps/plugins-workspace/blob/dev/plugins/autostart

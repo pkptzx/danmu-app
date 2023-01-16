@@ -703,12 +703,6 @@ supports-preserve-symlinks-flag@^1.0.0:
   dependencies:
     "@tauri-apps/api" "^1.0.0"
 
-"tauri-plugin-sql-api@https://github.com/tauri-apps/tauri-plugin-sql":
-  version "0.0.0"
-  resolved "https://github.com/tauri-apps/tauri-plugin-sql#7cd5d7249ae412967b0e5b0463570fc255a3c767"
-  dependencies:
-    "@tauri-apps/api" "^1.2.0"
-
 tiny-bilibili-ws@^0.0.7:
   version "0.0.7"
   resolved "https://registry.npmmirror.com/tiny-bilibili-ws/-/tiny-bilibili-ws-0.0.7.tgz#4537c693c8e691c1b273f270ee9b8420a5bee15d"
