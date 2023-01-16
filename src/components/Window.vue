@@ -2,7 +2,7 @@
   <div class="win7">
   <div class="window glass active" style="box-shadow: unset;">
     <div data-tauri-drag-region class="title-bar">
-      <div class="title-bar-text"><img :src="icon!=null?icon:'/src/assets/vue.svg'" style="width: 16px;height: 16px;border: 0px" />{{
+      <div data-tauri-drag-region class="title-bar-text"><img data-tauri-drag-region :src="icon!=null?icon:'/src/assets/vue.svg'" style="width: 16px;height: 16px;border: 0px" />{{
         title
       }}</div>
       <div class="title-bar-controls">

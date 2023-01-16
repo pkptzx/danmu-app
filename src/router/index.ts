@@ -25,7 +25,7 @@ const router = createRouter({
       component: () => import("../views/danmuQuery.vue"),
     },
     {
-      path: "/danmu/chatterbox",
+      path: "/danmu/chatterbox/:room_id",
       name: "setChatterBox",
       component: () => import("../views/SetChatterBox.vue"),
     },

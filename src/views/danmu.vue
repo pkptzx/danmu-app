@@ -100,6 +100,7 @@ import { appWindow,WebviewWindow } from '@tauri-apps/api/window';
 import { onMounted, onUnmounted, ref, nextTick, watch } from 'vue'
 import { useRoute } from "vue-router";
 import { startListen,UserActionMsg,User,DanmuMsg,GuardLevel } from 'blive-message-listener/browser'
+import * as DataBase from '../assets/js/db.js';
 import { useQuasar } from 'quasar'
 import 'animate.css';
 import * as bApi from '../assets/js/biliApi.js';
@@ -107,7 +108,7 @@ import * as bApi from '../assets/js/biliApi.js';
 library.add(faHatWizard, faUserSecret, faCommentAlt)
 
 move_window(Position.BottomRight)
-
+let db;
 const $q = useQuasar()
 const items = ref<Array<String>>([])
 const msger_chat = ref()
@@ -132,6 +133,7 @@ onMounted(async () => {
     console.log(location.href);
     const route=useRoute()
     room_id = Number(route.params.room_id);
+    db = await DataBase.init_db()
     bApi.getLiveRoomInfo(room_id).then(room =>{
         console.log("LiveRoomInfo",room);
         up_uid.value = room.data.data.uid
@@ -308,12 +310,12 @@ function open_chatterbox() {
     return;
   }
   chatterboxWindow = new WebviewWindow('chatterbox', {
-    url: '/danmu/chatterbox',
+    url: `/danmu/chatterbox/${room_id}`,
     "fullscreen": false,
-    "height": 300,
+    "height": 600,
     "resizable": true,
     "title": "话痨模式",
-    "width": 400,
+    "width": 316,
     "visible": true,
     "skipTaskbar": false,
     "decorations": false,
@@ -329,12 +331,46 @@ function open_chatterbox() {
     chatterboxWindow.setFocus();
   });
 }
+
+
+
 onUnmounted(async () => {
     await unlisten();
     danmuClient.close();
 });
 watch(wintop, (newTop) => {
     appWindow.setAlwaysOnTop(newTop);
+})
+let chatterbox_interval;
+let msg_idx = 0;
+watch(chatterbox, (newTop) => {
+    if(newTop){
+        DataBase.get_chatterbox(db, room_id).then(datas => {
+            console.log(datas);
+            if(datas.length > 0){
+                clearInterval(chatterbox_interval)
+                chatterbox_interval = setInterval(()=>{
+                    bApi.send_danmu(room_id, datas[msg_idx++].msg);
+                    if(msg_idx >= datas.length){
+                        msg_idx = 0
+                    }
+                },2000);
+            }else{
+                $q.notify({
+                    message: '请先设置话痨!',
+                    color: 'red',
+                    html: true,
+                    timeout: 800,
+                    progress: true
+                })
+                setTimeout(() => {
+                    chatterbox.value = false;
+                }, 200)
+            }
+        })
+    }else{
+        clearInterval(chatterbox_interval)
+    }
 })
 </script>
 

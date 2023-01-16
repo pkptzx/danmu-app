@@ -48,7 +48,14 @@ export async function init_db(){
                 room_admin boolean--是否房管\n\
             );");
             console.log('创建表:danmu_msg',r);
-            
+            let r2 = await db.execute("CREATE TABLE \"chatterbox\" (\n\
+                \"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT,\n\
+                \"roomid\" INTEGER NOT NULL,\n\
+                \"msg\" TEXT,\n\
+                \"enable\" boolean\n\
+              );");
+
+              console.log('创建表:chatterbox',r2);
         }else{
         // 3 检查版本是否一致,是否需要改变表结构以数据升级
 
@@ -104,7 +111,23 @@ export async function get_danmu_msg(db,filter,pageNum,pageSize){
     }
     return get_pagination_data(db,sql,pageNum,pageSize);
 }
-
+//查询话痨
+export async function get_chatterbox(db,roomid){
+    let sql = `select * from chatterbox where roomid='${roomid}'`;
+    return db.select(sql);
+}
+//保存话痨
+export async function save_chatterbox(db,room_id,datas){
+    db.execute(`delete from chatterbox where roomid=${room_id}`)
+    //实际上支持批量保存,我只是懒
+    let count = 0;
+    for (const key in datas) {
+        let sql = gen_insert_sql('chatterbox',datas[key])
+        count += await db.execute(sql);  
+    }
+    return count
+}
+// 分页查询
 async function get_pagination_data(db,selectSql,pageNum,pageSize){
     const sqlCount = `SELECT COUNT(1) as count from (${selectSql})`;
     const rst_count = await db.select(sqlCount);
