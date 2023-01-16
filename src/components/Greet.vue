@@ -497,7 +497,7 @@ async function send_event_to_danmu2() {
       </div>
   
     </div>
-    <q-scroll-area style="height: calc( 100vh - 250px);">
+    <q-scroll-area style="height: calc( 100vh - 320px);">
       <div class="q-pa-xs row items-center justify-center q-gutter-xs flex-container">
         <q-card class="my-card" v-for="room in hot_rooms" :key="room.room_id">
           <q-img :src="room.cover_from_user" @mouseenter="$event.target.children[1].children[0].src = room.keyframe"
