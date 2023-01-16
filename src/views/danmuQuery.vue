@@ -3,7 +3,7 @@
     <div class="q-pa-none">
     <q-table
     class="my-sticky-dynamic selectable"
-    :dense="$q.screen.lt.md"
+    dense
     ref="tableRef"
       title="弹幕查询"
       :rows="rows"
@@ -16,7 +16,8 @@
       @request="onRequest"
     >
     <!-- @virtual-scroll="onScroll" -->
-    <!-- virtual-scroll
+    <!-- :dense="$q.screen.lt.md"
+      virtual-scroll
       :virtual-scroll-item-size="48"
       :virtual-scroll-sticky-size-start="48" -->
     <template v-slot:top-right>
