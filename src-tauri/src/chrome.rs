@@ -3,11 +3,10 @@ use aes_gcm::{
     Aes256Gcm,
     Nonce, // Or `Aes128Gcm`
 };
+use base64::Engine;
 use std::collections::HashMap;
 use std::path::Path;
-use windows::Win32::{Security::Cryptography::CRYPT_INTEGER_BLOB};
-use sqlx::{Connection, Row};
-use base64::Engine;
+use windows::Win32::Security::Cryptography::CRYPT_INTEGER_BLOB;
 
 pub async fn get_raw_cookies(host_url: &str) -> HashMap<String, Vec<u8>> {
     let app_data_path = std::env::var("LOCALAPPDATA").unwrap();
@@ -22,12 +21,16 @@ pub async fn get_raw_cookies(host_url: &str) -> HashMap<String, Vec<u8>> {
         panic!("Cookies 未发现,你确定安装了Chrome浏览器?");
     }
 
-    let mut conn = sqlx::SqliteConnection::connect(format!("sqlite:{}",cookies_db_path).as_str()).await.unwrap();
-    let rows = sqlx::query("SELECT name,encrypted_value FROM cookies where host_key = ?").bind(host_url).fetch_all(&mut conn).await.unwrap();
+    let conn = rusqlite::Connection::open(cookies_db_path).unwrap();
+    let mut stmt = conn
+        .prepare("select name,encrypted_value from cookies where host_key=?")
+        .unwrap();
+    let mut rows = stmt.query(rusqlite::params![host_url]).unwrap();
     let mut data: HashMap<String, Vec<u8>> = HashMap::new();
-    for row in rows {
-        let encrypted_value_ref = row.get_unchecked::<Vec<u8>, usize>(1);
-        data.insert(row.get_unchecked(0), encrypted_value_ref);
+    while let Some(row) = rows.next().unwrap() {
+        let encrypted_value_ref = row.get_ref_unwrap(1);
+        let encrypted_value = encrypted_value_ref.as_bytes().unwrap();
+        data.insert(row.get(0).unwrap(), encrypted_value.to_vec());
     }
     data
 }
@@ -52,7 +55,9 @@ pub fn get_key() -> Vec<u8> {
         .as_str()
         .unwrap();
     // println!("{encrypted_key:?}");
-    let encrypted_key_bytes = base64::engine::general_purpose::STANDARD_NO_PAD.decode(encrypted_key).unwrap();
+    let encrypted_key_bytes = base64::engine::general_purpose::STANDARD_NO_PAD
+        .decode(encrypted_key)
+        .unwrap();
 
     let encrypted_key_bytes = &encrypted_key_bytes[5..];
     // println!("{:?}", encrypted_key);

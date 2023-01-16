@@ -3,7 +3,8 @@
         <q-layout view="lHh Lpr lFf" container style="height: 100vh;" class="shadow-2 rounded-borders">
             <q-header elevated>
                 <q-toolbar data-tauri-drag-region>
-                    <q-icon data-tauri-drag-region name="question_answer" color="green" size="32px" />
+                    <!-- <q-icon data-tauri-drag-region name="question_answer" color="green" size="32px" /> -->
+                    <q-spinner-comment data-tauri-drag-region color="green" size="32px" />
                     <q-toolbar-title data-tauri-drag-region>
                         {{ up_name }}
                         <q-tooltip class="bg-indigo" anchor="bottom middle" self="top middle">
@@ -12,18 +13,30 @@
                     </q-toolbar-title>
                     <q-btn-dropdown flat round dense icon="menu" class="q-mr-sm">
                         <div class="row no-wrap q-pa-md">
+                            <div class="column items-center">
+                                <a :href="'https://live.bilibili.com/'+room_id" target="_blank">
+                                    <q-avatar size="72px">
+                                            <img :src="up_face" />
+                                    </q-avatar>
+                                </a>
+                                <div class="text-subtitle1 q-mt-md q-mb-xs">{{ up_name }}</div>
+                    
+                                <q-btn color="primary" label="设置话痨" push size="sm" v-close-popup @click="open_chatterbox"/>
+                                <q-toggle v-model="chatterbox" checked-icon="check" unchecked-icon="clear" color="green" label="话痨模式" />
+                            </div>
+                            <q-separator vertical inset class="q-mx-lg" />
                             <div class="column">
                                 <q-toggle v-model="show_join" checked-icon="check" unchecked-icon="clear" color="green" label="显示进入" />
-                                <q-toggle v-model="show_face" checked-icon="check" unchecked-icon="clear" color="green" label="显示头像" >
+                                <q-toggle v-model="show_face" checked-icon="check" unchecked-icon="clear" color="green" label="显示头像">
                                     <q-tooltip class="bg-indigo" anchor="top middle" self="center middle">
-                                    如果瞬间有巨量弹幕显示头像会导致窗体卡顿<br/>因为需要发起获取头像的请求
+                                        如果瞬间有巨量弹幕显示头像会导致窗体卡顿<br />因为需要发起获取头像的请求
                                     </q-tooltip>
                                 </q-toggle>
                                 <q-toggle v-model="show_follow" checked-icon="check" unchecked-icon="clear" color="green" label="显示关注" />
                                 <q-toggle v-model="is_autoreply" checked-icon="check" unchecked-icon="clear" color="green" label="自动回复" />
                                 <q-toggle v-model="wintop" checked-icon="check" unchecked-icon="clear" color="green" label="置顶" />
                                 <q-separator spaced />
-                                <q-btn color="green" icon="exit_to_app" label="关闭窗口" @click="onClose"/>
+                                <q-btn color="green" icon="exit_to_app" label="关闭窗口" @click="onClose" />
                             </div>
                         </div>
                     </q-btn-dropdown>
@@ -44,14 +57,14 @@
                                 :label="'<span style=\'color:#8cd9ff;\'>' + item.body.user.uname + '</span> <span style=\'color:red;\'>关注直播间</span>'" label-html />
                                 <q-chat-message v-if="item.type == 'DANMU_MSG'" 
                                 :name="(item.body.user.uid == up_uid ? ('<span style=\'color:red;\'>[主播]</span>'): '')+(item.body.user.identity.room_admin ? ('<span style=\'color:red;\'>[房]</span>'): '') + item.body.user.uname" name-html
-                                    :avatar="show_face ? (item.body.user.face ? item.body.user.face : 'https://i0.hdslb.com/bfs/face/member/noface.jpg_48x48.jpg') : undefined" :text="[item.body.content]"
+                                    :avatar="show_face ? (item.body.user.face ? item.body.user.face : 'https://i0.hdslb.com/bfs/face/member/noface.jpg_48x48.jpg') : undefined"
                                     :stamp="new Date(item.timestamp).toLocaleTimeString().replace(/([\d]+:[\d]{2})(:[\d]{2})(.*)/, '$1$3')"
                                     :bg-color="item.body.user.uid == my_uid ? 'primary':'amber-7'" 
                                     :text-color="item.body.user.uid == my_uid ? 'white':'black'" 
                                     :sent="item.body.user.uid == my_uid">
                                     
                                     <div v-if="item.body.emoticon?.url != null"><img :style="'width: '+item.body.emoticon.width/3+'px; height: '+item.body.emoticon.height/3+'px;'" :src="item.body.emoticon.url" /></div>
-                                    <div v-else>{{ item.body.content }}</div>
+                                    <div class="selectable" v-else>{{ item.body.content }}</div>
                                 </q-chat-message>
                             </template>
                         </div>
@@ -63,7 +76,7 @@
                 </q-page>
             </q-page-container>
             <q-footer elevated>
-                <q-input placeholder="请输入弹幕..." dense v-model="dmMsg" clearable autogrow :input-class="errtip ? 'errtip' : 'text-white'" @animationend="errtip=false">
+                <q-input placeholder="请输入弹幕..." dense v-model="dmMsg" clearable :input-class="errtip ? 'errtip' : 'text-white'" @animationend="errtip=false">
                     <template v-slot:after>
                         <q-btn round dense flat icon="send" color="positive" @click="send_dm"/>
                     </template>
@@ -83,7 +96,7 @@ import { faHatWizard, faUserSecret, faCommentAlt } from '@fortawesome/free-solid
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { move_window, Position } from 'tauri-plugin-positioner-api'
 import { emit,listen } from '@tauri-apps/api/event';
-import { appWindow } from '@tauri-apps/api/window';
+import { appWindow,WebviewWindow } from '@tauri-apps/api/window';
 import { onMounted, onUnmounted, ref, nextTick, watch } from 'vue'
 import { useRoute } from "vue-router";
 import { startListen,UserActionMsg,User,DanmuMsg,GuardLevel } from 'blive-message-listener/browser'
@@ -101,12 +114,14 @@ const msger_chat = ref()
 const show_join = ref(true)
 const show_follow = ref(true)
 const wintop = ref(false)
+const chatterbox = ref(false)
 appWindow.setAlwaysOnTop(wintop.value);
 const show_face = ref(false)
 const my_uid = ref()
 const dmMsg = ref('')
 const up_name = ref('')
 const up_uid = ref()
+const up_face = ref()
 const is_autoreply = ref(false)
 const scroll_sticky = ref({show:false,unread:0})
 let errtip = ref(false);
@@ -123,6 +138,7 @@ onMounted(async () => {
         bApi.getAccInfo(room.data.data.uid).then((info) => {
             console.log("AccInfo",info);
             up_name.value = info.data.data.name;
+            up_face.value = info.data.data.face;
         });
     });
 
@@ -213,6 +229,9 @@ async function addData(data) {
     }
     if (data.type == 'DANMU_MSG') {
         updateFace(data).then()
+        data.body.upid = up_uid.value;
+        data.body.upname = up_name.value;
+        data.body.roomid = room_id;
         emit('save_danmu_msg', data.body);
     }
     autoreply(data)
@@ -281,6 +300,35 @@ const onClose = async (e: Event) => {
     appWindow.close();
 }
 
+function open_chatterbox() {
+  let chatterboxWindow = WebviewWindow.getByLabel('chatterbox');
+  if (chatterboxWindow) {
+    chatterboxWindow.unminimize();
+    chatterboxWindow.setFocus();
+    return;
+  }
+  chatterboxWindow = new WebviewWindow('chatterbox', {
+    url: '/danmu/chatterbox',
+    "fullscreen": false,
+    "height": 300,
+    "resizable": true,
+    "title": "话痨模式",
+    "width": 400,
+    "visible": true,
+    "skipTaskbar": false,
+    "decorations": false,
+    "transparent": true,
+    "center":true
+  });
+  chatterboxWindow.once('tauri://created', function () {
+    chatterboxWindow?.show();
+  });
+  chatterboxWindow.once('tauri://error', function (e) {
+    console.error(e)
+    chatterboxWindow.unminimize();
+    chatterboxWindow.setFocus();
+  });
+}
 onUnmounted(async () => {
     await unlisten();
     danmuClient.close();

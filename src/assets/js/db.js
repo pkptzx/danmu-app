@@ -1,6 +1,7 @@
 import { appCacheDir, resourceDir, appDataDir,runtimeDir, resolveResource, resolve } from '@tauri-apps/api/path';
 import { exists, readDir, BaseDirectory } from '@tauri-apps/api/fs';
-import Database from "tauri-plugin-sql-api";
+// import Database from "tauri-plugin-sql-api";
+import Database from "./sqlite";
 
 export async function init_db(){
     let db;
@@ -11,11 +12,12 @@ export async function init_db(){
         const db_path = resource_path.replace(/^(\\\\\?\\)/,'');
         console.log(db_path);
         // 如果不写绝对路径,默认会创建在%APPDATA%/Roaming\danmuapp下
-        db = await Database.load(`sqlite:${db_path}`);
+        // db = await Database.open(`sqlite:${db_path}`);
+        db = await Database.open(`${db_path}`);
         console.log(db);
         // 2 检查表,如果没有任何表则创建表,并初始化基础数据
         let rst = await db.select("select * from sqlite_master");
-        console.log(rst);
+        // console.log(rst);
         if(rst.length == 0) {
             let r = await db.execute("CREATE TABLE \"danmu_msg\" (\n\
                 \"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n\
@@ -29,6 +31,9 @@ export async function init_db(){
                 uid INTEGER,\n\
                 uname TEXT,--用户名\n\
                 face TEXT,--用户头像\n\
+                upid  INTEGER,\n\
+                upname  TEXT,\n\
+                roomid  INTEGER,\n\
                 badge_active boolean,--用户牌子是否点亮\n\
                 badge_name TEXT,--牌子名称\n\
                 badge_level INTEGER,--牌子等级\n\
@@ -68,6 +73,9 @@ export async function insert_danmu_msg(db,data){
     item.emoticon_url  = data.emoticon?.url
     item.uid   = data.user.uid
     item.uname  = data.user.uname
+    item.upid   = data.upid
+    item.upname  = data.upname
+    item.roomid  = data.roomid
     item.face   = data.user.face
     item.badge_active  = data.user.badge?.active
     item.badge_name  = data.user.badge?.name
@@ -82,6 +90,38 @@ export async function insert_danmu_msg(db,data){
     item.guard_level   = data.user.identity?.guard_level
     item.room_admin   = data.user.identity?.room_admin
     // console.log(item);
+
+    const sql = gen_insert_sql("danmu_msg",item);
+    console.log(sql);
+    const rst = await db.execute(sql);
+    console.log("保存弹幕结果: ",rst);
+}
+
+export async function get_danmu_msg(db,filter,pageNum,pageSize){
+    let sql = `select * from danmu_msg`;
+    if(filter){
+        sql += ` where uname like '%${filter}%' or content like '%${filter}%'`
+    }
+    return get_pagination_data(db,sql,pageNum,pageSize);
+}
+
+async function get_pagination_data(db,selectSql,pageNum,pageSize){
+    const sqlCount = `SELECT COUNT(1) as count from (${selectSql})`;
+    const rst_count = await db.select(sqlCount);
+    console.log(rst_count)
+    const count = rst_count[0].count;
+    const sql = `SELECT t.* from (${selectSql}) t limit ${(pageNum - 1) * pageSize},${pageSize}`;
+    console.log(sql);
+    const data =  await db.select(sql);
+    console.log(data);
+    const rst = {
+        count : count,
+        rows : data
+    };    
+    return rst;
+}
+
+function gen_insert_sql(tableName,item){
     let column_sql_part = ""
     let value_sql_part = ""
     for(let key in item){
@@ -101,8 +141,6 @@ export async function insert_danmu_msg(db,data){
     }
     column_sql_part = column_sql_part.replaceAll(/,$/g,'')
     value_sql_part = value_sql_part.replaceAll(/,$/g,'')
-    const sql = `INSERT INTO "danmu_msg"(${column_sql_part}) VALUES (${value_sql_part})`;
-    console.log(sql);
-    const rst = await db.execute(sql);
-    console.log("保存弹幕结果: ",rst);
+    const sql = `INSERT INTO "${tableName}"(${column_sql_part}) VALUES (${value_sql_part})`;
+    return sql;
 }

@@ -168,7 +168,7 @@ async function getCoreData(range_type){
   const cookies = await getCookies();
   const cookies_raw_string = toCookiesPlainText(cookies);
   const url = "https://api.live.bilibili.com/xlive/app-blink/v1/date/CoreData?platform=web&mobi_app=web&build=1&range_type="
-    return fetch(`${url}?${range_type}`,{
+    return fetch(`${url}${range_type}`,{
       method: 'GET',
       headers: {
         "cookie" : cookies_raw_string,
@@ -179,7 +179,11 @@ async function getCoreData(range_type){
     }
     })
   }
-
+  //获取粉丝数量/关注数
+async function getStat(uid){
+  const url = "https://api.bilibili.com/x/relation/stat"
+    return fetch(`${url}?vmid=${uid}`)
+  }
 export {
     getHotRankList,
     getGuardRankList,
@@ -192,7 +196,8 @@ export {
     getUpInfo,
     getLiveUps,
     getLivesInfo,
-    getCoreData
+    getCoreData,
+    getStat
 
   };
 

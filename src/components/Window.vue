@@ -2,7 +2,7 @@
   <div class="win7">
   <div class="window glass active" style="box-shadow: unset;">
     <div data-tauri-drag-region class="title-bar">
-      <div class="title-bar-text"><img src="../assets/vue.svg" style="width: 16px;height: 16px;border: 0px" />{{
+      <div class="title-bar-text"><img :src="icon!=null?icon:'/src/assets/vue.svg'" style="width: 16px;height: 16px;border: 0px" />{{
         title
       }}</div>
       <div class="title-bar-controls">
@@ -14,7 +14,7 @@
         <button aria-label="Close" @click="onClose"></button>
       </div>
     </div>
-    <div class="window-body has-space" style="height: calc(100vh - 40px);">
+    <div :class="['window-body',{'has-space':space},bgColor]" style="height: calc(100vh - 40px);">
       <slot>Window 窗体内容</slot>
     </div>
   </div>
@@ -28,7 +28,9 @@ import { exit } from '@tauri-apps/api/process';
 import { appWindow } from '@tauri-apps/api/window';
 defineProps({
   title: String,
-  icon: String
+  icon: String,
+  bgColor: String,
+  "space": { type: Boolean, required: false, default: true },
 })
 const wintop = ref(false);
 appWindow.setAlwaysOnTop(wintop.value);
