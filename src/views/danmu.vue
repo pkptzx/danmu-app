@@ -16,12 +16,12 @@
                             <div class="column items-center">
                                 <a :href="'https://live.bilibili.com/'+room_id" target="_blank">
                                     <q-avatar size="72px">
-                                            <img :src="up_face" />
+                                        <img :src="up_face" />
                                     </q-avatar>
                                 </a>
                                 <div class="text-subtitle1 q-mt-md q-mb-xs">{{ up_name }}</div>
                     
-                                <q-btn color="primary" label="设置话痨" push size="sm" v-close-popup @click="open_chatterbox"/>
+                                <q-btn color="primary" label="设置话痨" push size="sm" v-close-popup @click="open_chatterbox" />
                                 <q-toggle v-model="chatterbox" checked-icon="check" unchecked-icon="clear" color="green" label="话痨模式" />
                             </div>
                             <q-separator vertical inset class="q-mx-lg" />
@@ -33,7 +33,11 @@
                                     </q-tooltip>
                                 </q-toggle>
                                 <q-toggle v-model="show_follow" checked-icon="check" unchecked-icon="clear" color="green" label="显示关注" />
-                                <q-toggle v-model="is_autoreply" checked-icon="check" unchecked-icon="clear" color="green" label="自动回复" />
+                                <div class="q-pa-none q-gutter-xs">
+                                    <q-toggle v-model="is_autoreply" checked-icon="check" unchecked-icon="clear" color="green"
+                                        label="自动回复" />
+                                    <q-btn round color="green" size="xs" icon="settings" />
+                                </div>
                                 <q-toggle v-model="wintop" checked-icon="check" unchecked-icon="clear" color="green" label="置顶" />
                                 <q-separator spaced />
                                 <q-btn color="green" icon="exit_to_app" label="关闭窗口" @click="onClose" />
@@ -81,17 +85,19 @@
                 </q-page>
             </q-page-container>
             <q-footer elevated>
-                <q-input placeholder="请输入弹幕..." dense v-model="dmMsg" clearable :input-class="errtip ? 'errtip' : 'text-white'" @animationend="errtip=false" @keyup.enter.exact="send_dm">
+                <q-input placeholder="请输入弹幕...回车也能直接发送" dense v-model="dmMsg" clearable :input-class="errtip ? 'errtip' : 'text-white'"
+                    @animationend="errtip=false" @keyup.enter.exact="send_dm">
                     <template v-slot:after>
-                        <q-btn round dense flat icon="send" color="positive" @click="send_dm"/>
+                        <q-btn round dense flat icon="send" color="positive" :loading="sending" @click="send_dm">
+                            <template v-slot:loading>
+                                <q-spinner-facebook />
+                            </template>
+                        </q-btn>
                     </template>
                 </q-input>
             </q-footer>
         </q-layout>
-
-
     </div>
-
 </template>
 
 <script setup lang="ts">
@@ -113,6 +119,9 @@ import * as bApi from '../assets/js/biliApi.js';
 library.add(faHatWizard, faUserSecret, faCommentAlt)
 
 move_window(Position.BottomRight)
+// TODO: 将设置的一堆变量放到一个变量对象中,将变量保存入库,入库直接存json,话痨存成数组.这样一个直播间对应一条数据,话痨和设置
+// TODO: 话痨需要增加时间间隔的设置,中间的间隔就这样吧,再加个整体的间隔
+// TODO: 自动回复,需要增加设置,设置回复的项有哪些,关注,点赞,舰长进入直播间,礼物,房管,红包?
 let db;
 const $q = useQuasar()
 const items = ref<Array<String>>([])
@@ -129,6 +138,7 @@ const up_name = ref('')
 const up_uid = ref()
 const up_face = ref()
 const is_autoreply = ref(false)
+const sending = ref(false)
 const scroll_sticky = ref({show:false,unread:0})
 let errtip = ref(false);
 let unlisten: any;
@@ -375,7 +385,9 @@ async function send_dm(){
     if(dmMsg.value.trim().length == 0){
         return;
     }
+    sending.value=true
     bApi.send_danmu(room_id, `${dmMsg.value.trim()}`).then((resp: any) => {
+        sending.value=false
         console.log(resp.data);
         if (resp.data.message == '') {
             dmMsg.value = ''
