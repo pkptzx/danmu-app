@@ -38,7 +38,7 @@ function toCookiesPlainText(cookies_json){
     }
     return cookies_raw_string;
 }
-//发送弹幕
+//发送弹幕 返回f屏蔽词 k直播间屏蔽词
 async function send_danmu(roomid,msg){
     if(msg.trim().length == 0) {
         return;
