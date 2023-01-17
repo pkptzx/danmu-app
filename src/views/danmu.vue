@@ -82,7 +82,7 @@
                 </q-page>
             </q-page-container>
             <q-footer elevated>
-                <q-input placeholder="请输入弹幕..." dense v-model="dmMsg" clearable :input-class="errtip ? 'errtip' : 'text-white'" @animationend="errtip=false">
+                <q-input placeholder="请输入弹幕..." dense v-model="dmMsg" clearable :input-class="errtip ? 'errtip' : 'text-white'" @animationend="errtip=false" @keyup.enter.exact="send_dm">
                     <template v-slot:after>
                         <q-btn round dense flat icon="send" color="positive" @click="send_dm"/>
                     </template>
