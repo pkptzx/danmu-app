@@ -68,9 +68,8 @@
                                     :bg-color="item.body.user.uid == my_uid ? 'primary':'amber-7'" 
                                     :text-color="item.body.user.uid == my_uid ? 'white':'black'" 
                                     :sent="item.body.user.uid == my_uid">
-                                    
                                     <div v-if="item.body.emoticon?.url != null"><img :style="'width: '+item.body.emoticon.width/3+'px; height: '+item.body.emoticon.height/3+'px;'" :src="item.body.emoticon.url" /></div>
-                                    <div class="selectable" v-else>{{ item.body.content }}</div>
+                                    <div class="selectable" v-else v-html="item.body.contentHtml"></div>
                                 </q-chat-message>
                             </template>
                         </div>
@@ -176,7 +175,18 @@ onMounted(async () => {
             addData({ type: 'ERROR', 'msg': '连接失败,请检查网络或房间号.' })
         },
         onIncomeDanmu: (msg) => {
-            console.log(msg.id, msg.body)
+            console.log(msg.id, msg)
+            //解emoji表情的地址
+            const extra = JSON.parse(msg.raw.info[0][15].extra)
+            if(extra.emots){
+                // 替换emoji表情
+                console.log(extra.emots)
+                msg.body.contentHtml = msg.body.content
+                for(let key in extra.emots){
+                    let reg = new RegExp(key.replace('[','\\[').replace(']','\\]'),'gi')
+                    msg.body.contentHtml = msg.body.contentHtml.replaceAll(reg, `<img style="width: 20px; height: 20px;" src="${extra.emots[key].url}" />`)
+                }
+            }
             addData(msg)
         },
         onIncomeSuperChat: (msg) => {
