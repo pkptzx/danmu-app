@@ -301,22 +301,45 @@ async function autoreply(msg){
         return;
     }
     if (msg.type == 'INTERACT_WORD' && msg.body.action == 'follow'){
-        bApi.send_danmu(room_id,`[花]感谢${msg.body.user.uname.length>12 ? (msg.body.user.uname.substring(0,9) + '...') :msg.body.user.uname}的关注`).then((resp: any)=>{
-            console.log('自动回复',resp);
-        });
+        send_danmu_with_notify(room_id,`[花]感谢${msg.body.user.uname.length>12 ? (msg.body.user.uname.substring(0,9) + '...') :msg.body.user.uname}的关注`)
     }else if (msg.cmd == 'LIKE_INFO_V3_CLICK'){
-        bApi.send_danmu(room_id,`[哇]感谢${msg.data.uname.length>12 ? (msg.data.uname.substring(0,9) + '...') :msg.data.uname}的点赞`).then((resp: any)=>{
-            console.log('自动回复',resp);
-        });
+        send_danmu_with_notify(room_id,`[哇]感谢${msg.data.uname.length>12 ? (msg.data.uname.substring(0,9) + '...') :msg.data.uname}的点赞`)
     }else if (msg.cmd == 'room_admin_entrance'){
-        bApi.send_danmu(room_id,`[爱]恭喜${msg.uname.length>11 ? (msg.uname.substring(0,8) + '...') :msg.uname}成为房管`).then((resp: any)=>{
-            console.log('自动回复',resp);
-        });
+        send_danmu_with_notify(room_id,`[爱]恭喜${msg.uname.length>11 ? (msg.uname.substring(0,8) + '...') :msg.uname}成为房管`)
     }else if (msg.cmd == 'ROOM_ADMIN_REVOKE'){
-        bApi.send_danmu(room_id,`[妙]逗比${msg.uname.length>10 ? (msg.uname.substring(0,7) + '...') :msg.uname}被撤销房管`).then((resp: any)=>{
-            console.log('自动回复',resp);
-        });
+        send_danmu_with_notify(room_id,`[妙]逗比${msg.uname.length>10 ? (msg.uname.substring(0,7) + '...') :msg.uname}被撤销房管`)
     }
+}
+function send_danmu_with_notify(room_id,msg){
+    bApi.send_danmu(room_id, msg).then((resp: any) => {
+        console.log('自动回复', resp);
+        if (resp.data.message == '') {
+        } else if (resp.data.message == 'f') {
+            $q.notify({
+                message: '您的弹幕被B站吞了<br/>请修改后重发',
+                color: 'purple',
+                html: true,
+                timeout: 800,
+                progress: true
+            })
+        } else if (resp.data.message == 'k') {
+            $q.notify({
+                message: '您的弹幕中有直播间违禁词<br/>这是由主播或房管设置的请修改后重发',
+                color: 'purple',
+                html: true,
+                timeout: 800,
+                progress: true
+            })
+        } else {
+            $q.notify({
+                message: resp.data.message,
+                color: 'purple',
+                html: true,
+                timeout: 800,
+                progress: true
+            })
+        }
+    });
 }
 async function updateFace(data){
     // 即便禁用头像,也从尝试从缓存里获取头像
@@ -342,11 +365,11 @@ async function send_dm(){
     if(dmMsg.value.trim().length == 0){
         return;
     }
-    bApi.send_danmu(room_id,`${dmMsg.value.trim()}`).then((resp: any)=>{
+    bApi.send_danmu(room_id, `${dmMsg.value.trim()}`).then((resp: any) => {
         console.log(resp.data);
-        if(resp.data.message == ''){
+        if (resp.data.message == '') {
             dmMsg.value = ''
-        }else if(resp.data.message == 'f'){
+        } else if (resp.data.message == 'f') {
             errtip.value = true;
             $q.notify({
                 message: '您的弹幕被B站吞了<br/>请修改后重发',
@@ -354,8 +377,17 @@ async function send_dm(){
                 html: true,
                 timeout: 800,
                 progress: true
-                })
-        }else{
+            })
+        } else if (resp.data.message == 'k') {
+            errtip.value = true;
+            $q.notify({
+                message: '您的弹幕中有直播间违禁词<br/>这是由主播或房管设置的请修改后重发',
+                color: 'purple',
+                html: true,
+                timeout: 800,
+                progress: true
+            })
+        } else {
             errtip.value = true;
             $q.notify({
                 message: resp.data.message,
@@ -363,7 +395,7 @@ async function send_dm(){
                 html: true,
                 timeout: 800,
                 progress: true
-                })
+            })
         }
     });
 }
@@ -419,7 +451,7 @@ watch(chatterbox, (newTop) => {
             if(datas.length > 0){
                 clearInterval(chatterbox_interval)
                 chatterbox_interval = setInterval(()=>{
-                    bApi.send_danmu(room_id, datas[msg_idx++].msg);
+                    send_danmu_with_notify(room_id, datas[msg_idx++].msg);
                     if(msg_idx >= datas.length){
                         msg_idx = 0
                     }
