@@ -28,12 +28,12 @@
 
 ## 截图
 <p align="center">
-<img src="screenshot/danmu1.png?x" width="30%" height="30%">
-<img src="screenshot/danmu2.png?x" width="30%" height="30%">
-<img src="screenshot/danmu3.png?x" width="30%" height="30%">
+  <img src="screenshot/main.png?x" width="80%" height="35%">
 </p>
 <p align="center">
-<img src="screenshot/main.png?x" width="80%" height="35%">
+  <img src="screenshot/danmu1.png" width="30%" height="30%">
+  <img src="screenshot/danmu2.png" width="30%" height="30%">
+  <img src="screenshot/danmu3.png" width="30%" height="30%">
 </p>
 
 ## 使用到的库
