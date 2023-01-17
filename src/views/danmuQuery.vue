@@ -1,5 +1,5 @@
 <template>
-  <Window title="弹幕查询" :space="false" icon="/vite.svg">
+  <Window title="弹幕查询" no-space icon="/vite.svg">
     <div class="q-pa-none">
     <q-table
     class="my-sticky-dynamic selectable"

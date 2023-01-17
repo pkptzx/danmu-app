@@ -1,5 +1,5 @@
 <template>
-  <Window title="问ChatGTP">
+  <Window title="问ChatGTP" hide-minimize hide-maximize hide-top>
     <textarea type="text" style="width:60vw" v-model="input"/>
     <button @click="ask">问ChatGTP</button>
     <div style="white-space: pre-wrap;overflow-y: auto;height:calc(100vh - 100px);" class="selectable" v-text="resout"></div>

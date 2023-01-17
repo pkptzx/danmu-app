@@ -1,11 +1,11 @@
 <template>
-    <Window :title="'话痨模式' + room_id" :space="false" icon="/vite.svg">
+    <Window :title="'话痨模式' + room_id" icon="/vite.svg">
         <div class="q-pa-md" style="max-width: 300px">
             <div class="q-gutter-md">
                 <template v-for="(item, index) in chatterboxs" :key="index">
                     <q-input v-model="item.msg" filled type="text" :rules="[ val => val.length <= 20 || '最多只能输入20个字符']">
                         <template v-slot:append>
-                            <q-toggle v-model="item.enable" true-value="true" false-value="false" color="yellow" />
+                            <q-toggle v-model="item.enable" true-value="true" false-value="false" color="green" />
                         </template>
                     </q-input>
                 </template>
