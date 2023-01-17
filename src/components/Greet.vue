@@ -2,6 +2,7 @@
 //@ts-nocheck
 import { computed, onMounted, onUnmounted, ref,reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
+import { getVersion } from '@tauri-apps/api/app';
 import { appWindow,WebviewWindow,getAll,PhysicalPosition,LogicalPosition,currentMonitor } from '@tauri-apps/api/window';
 import { confirm } from '@tauri-apps/api/dialog';
 import { register,isRegistered,unregister  } from '@tauri-apps/api/globalShortcut';
@@ -14,7 +15,7 @@ import * as bApi from '../assets/js/biliApi.js';
 import * as DataBase from '../assets/js/db.js';
 import 'animate.css';
 
-
+const version = ref('');
 const greetMsg = ref("");
 const rooms = ref([]);
 const hot_rooms = ref([]);
@@ -38,6 +39,7 @@ let roomid = ref(3796382)//self 8094023 dht 3796382//点击获取直播间房号
 let unlisten:any;
 let coredata_Interval;
 onMounted(async () => {
+  version.value = await getVersion();
   //接收窗体自己给自己发的消息
   unlisten = await appWindow.listen<string>('state-changed', (event) => {
     console.log(`Got error: ${event.payload.msg}`);
@@ -394,7 +396,7 @@ async function send_event_to_danmu2() {
 </script>
 
 <template>
-  <Window icon="/vite.svg" bg-color="bg-light-blue-1" title="弹幕君">
+  <Window icon="/vite.svg" bg-color="bg-light-blue-1" :title="'弹幕君 v' + version">
     <div class="q-pa-sx row items-start q-gutter-md">
       <q-item clickable v-ripple style="width:300px">
         <q-item-section side>
