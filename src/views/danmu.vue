@@ -57,6 +57,10 @@
                                 :label="'<span style=\'color:#8cd9ff;\'>' + item.body.user.uname + '</span> <span style=\'color:red;\'>关注直播间</span>'" label-html />
                                 <q-chat-message v-if="item.cmd == 'LIKE_INFO_V3_CLICK'" 
                                 :label="'<span style=\'color:#8cd9ff;\'>' + item.data.uname + '</span> <span style=\'color:green;\'>点赞了直播间</span>'" label-html />
+                                <q-chat-message v-if="item.cmd == 'room_admin_entrance'" 
+                                :label="'恭喜<span style=\'color:#8cd9ff;\'>' + item.uname + '</span> <span style=\'color:green;\'>成为房管</span>'" label-html />
+                                <q-chat-message v-if="item.cmd == 'ROOM_ADMIN_REVOKE'" 
+                                :label="'<span style=\'color:#8cd9ff;\'>' + item.uname + '</span> <span style=\'color:green;\'>被撤销房管</span>'" label-html />
                                 <q-chat-message v-if="item.type == 'DANMU_MSG'" 
                                 :name="(item.body.user.uid == up_uid ? ('<span style=\'color:red;\'>[主播]</span>'): '')+(item.body.user.identity.room_admin ? ('<span style=\'color:red;\'>[房]</span>'): '') + item.body.user.uname" name-html
                                     :avatar="show_face ? (item.body.user.face ? item.body.user.face : 'https://i0.hdslb.com/bfs/face/member/noface.jpg_48x48.jpg') : undefined"
@@ -195,12 +199,44 @@ onMounted(async () => {
             }
 
         },
+        onGuardBuy: (msg) => {
+            //舰长上舰消息
+            console.log('舰长上舰消息',msg);
+        },
         raw: {
+            // https://github.com/SocialSisterYi/bilibili-API-collect/issues/360
             // 点赞
             'LIKE_INFO_V3_CLICK': (msg) => {
                 console.log(msg)
                 addData(msg)
             },
+            //设立房管 room_admin_entrance 
+            'room_admin_entrance': (msg) => {
+                // {
+                //     "cmd": "room_admin_entrance",
+                //     "dmscore": 45,
+                //     "level": 1,
+                //     "msg": "系统提示：你已被主播设为房管",
+                //     "uid": 8212729
+                // }
+                console.log('设立房管',msg)
+                addData(msg)
+            },
+            //撤销房管 ROOM_ADMIN_REVOKE 
+            'ROOM_ADMIN_REVOKE': (msg) => {
+                // {
+                //     "cmd": "ROOM_ADMIN_REVOKE",
+                //     "msg": "撤销房管",
+                //     "uid": 8212729
+                // }
+                console.log('撤销房管',msg)
+                addData(msg)
+            },
+            //发送红包 POPULARITY_RED_POCKET_NEW
+            'POPULARITY_RED_POCKET_NEW': (msg) => {
+                console.log('发送红包',msg)
+                addData(msg)
+            }
         }
     }
 
@@ -225,6 +261,15 @@ function scrollBottom () {
     scroll_sticky.value.unread = 0;
 }
 async function addData(data) {
+    if (data.cmd == 'room_admin_entrance' || data.cmd == 'ROOM_ADMIN_REVOKE'){
+        data.uname = '***'
+        bApi.getAccInfo(data.uid).then((info) => {
+            console.log("AccInfo",info);
+            data.uname = info.data.data.name;
+            autoreply(data)
+        });
+    }
+
     if(items.value?.length >= 100){
         items.value?.splice(0,1)
     }
@@ -246,7 +291,9 @@ async function addData(data) {
         // emit('save_danmu_msg', data.body);
         DataBase.insert_danmu_msg(db, data.body);
     }
-    autoreply(data)
+    if (data.cmd !== 'room_admin_entrance' && data.cmd !== 'ROOM_ADMIN_REVOKE'){
+        autoreply(data)
+    }
 }
 // 自动回复
 async function autoreply(msg){
@@ -257,9 +304,16 @@ async function autoreply(msg){
         bApi.send_danmu(room_id,`[花]感谢${msg.body.user.uname.length>12 ? (msg.body.user.uname.substring(0,9) + '...') :msg.body.user.uname}的关注`).then((resp: any)=>{
             console.log('自动回复',resp);
         });
-    }
-    if (msg.cmd == 'LIKE_INFO_V3_CLICK'){
+    }else if (msg.cmd == 'LIKE_INFO_V3_CLICK'){
         bApi.send_danmu(room_id,`[哇]感谢${msg.data.uname.length>12 ? (msg.data.uname.substring(0,9) + '...') :msg.data.uname}的点赞`).then((resp: any)=>{
+            console.log('自动回复',resp);
+        });
+    }else if (msg.cmd == 'room_admin_entrance'){
+        bApi.send_danmu(room_id,`[爱]恭喜${msg.uname.length>11 ? (msg.uname.substring(0,8) + '...') :msg.uname}成为房管`).then((resp: any)=>{
+            console.log('自动回复',resp);
+        });
+    }else if (msg.cmd == 'ROOM_ADMIN_REVOKE'){
+        bApi.send_danmu(room_id,`[妙]逗比${msg.uname.length>10 ? (msg.uname.substring(0,7) + '...') :msg.uname}被撤销房管`).then((resp: any)=>{
             console.log('自动回复',resp);
         });
     }
