@@ -12,6 +12,9 @@ body {
   -webkit-user-select: none;
   -moz-user-select: none;
 }
+*::selection {
+  background-color: var(--q-info);
+}
 .selectable{
   user-select:text!important;
   -webkit-user-select: text!important;
