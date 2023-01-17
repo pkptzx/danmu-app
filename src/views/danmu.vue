@@ -176,12 +176,12 @@ onMounted(async () => {
         },
         onIncomeDanmu: (msg) => {
             console.log(msg.id, msg)
+            msg.body.contentHtml = msg.body.content
             //解emoji表情的地址
             const extra = JSON.parse(msg.raw.info[0][15].extra)
             if(extra.emots){
                 // 替换emoji表情
                 console.log(extra.emots)
-                msg.body.contentHtml = msg.body.content
                 for(let key in extra.emots){
                     let reg = new RegExp(key.replace('[','\\[').replace(']','\\]'),'gi')
                     msg.body.contentHtml = msg.body.contentHtml.replaceAll(reg, `<img style="width: 20px; height: 20px;" src="${extra.emots[key].url}" />`)
