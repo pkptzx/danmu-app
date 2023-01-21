@@ -1,6 +1,6 @@
 <script setup lang="ts">
 //@ts-nocheck
-import { computed, onMounted, onUnmounted, ref,reactive } from "vue";
+import { computed, onMounted, onUnmounted, ref,reactive,watch } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 import { getVersion } from '@tauri-apps/api/app';
 import { appWindow,WebviewWindow,getAll,PhysicalPosition,LogicalPosition,currentMonitor } from '@tauri-apps/api/window';
@@ -14,6 +14,7 @@ import { emit,listen } from '@tauri-apps/api/event';
 import * as bApi from '../assets/js/biliApi.js';
 import * as DataBase from '../assets/js/db.js';
 import 'animate.css';
+import { useSpeechSynthesis,useSpeechRecognition } from '@vueuse/core'
 
 const version = ref('');
 const greetMsg = ref("");
@@ -34,7 +35,6 @@ const my_info = reactive({"uid":0,roomid:0,"face": "","uname": "",sign:"",sex:"�
   'income':0,
 }});
 let db;
-let listen_save_danmu_msg;
 let roomid = ref(3796382)//self 8094023 dht 3796382//点击获取直播间房号时会被覆盖
 let unlisten:any;
 let coredata_Interval;
@@ -57,7 +57,6 @@ onMounted(async () => {
 onUnmounted(async () => {
   clearInterval(coredata_Interval);
   await unlisten();
-  await listen_save_danmu_msg();
   await db.close();
 });
 function getCoreData(){
@@ -360,6 +359,42 @@ async function show_danmu(room_id) {
     danmuWindow.setFocus();
   });
 }
+async function show_subtitles() {
+  let subtitlesWindow = WebviewWindow.getByLabel(`subtitles`);
+  if (subtitlesWindow) {
+    subtitlesWindow.unminimize();
+    subtitlesWindow.setFocus();
+    return;
+  }
+  subtitlesWindow = new WebviewWindow(`subtitles`, {
+    url: `/subtitles`,
+    "fullscreen": false,
+    "height": 120,
+    "resizable": true,
+    "title": `字幕`,
+    "width": 1000,
+    "visible": true,
+    "skipTaskbar": false,
+    "decorations": false,
+    "transparent": true,
+    "center":false,
+    "alwaysOnTop": true
+  });
+  subtitlesWindow.once('tauri://created', function () {
+    subtitlesWindow?.show();
+  });
+  subtitlesWindow.once('tauri://error', function (e) {
+    console.error(e)
+    subtitlesWindow.unminimize();
+    subtitlesWindow.setFocus();
+  });
+}
+async function cancel_subtitles_penetration() {
+  invoke('window_cancel_mouse_penetration',{'label' : 'subtitles'})
+}
+async function subtitles_penetration() {
+  invoke('window_mouse_penetration',{'label' : 'subtitles'})
+}
 async function layout_danmu_win() {
   //获取屏幕大小
   const monitor = await currentMonitor();
@@ -372,14 +407,16 @@ async function layout_danmu_win() {
   let y = 0;
   wins.forEach(win=>{
     if(win.label.startsWith('danmu')){
+      win.minimize();
+        win.unminimize();
        win.outerSize().then(size=>{
         if(x+size.width > m_size.width){
           y += size.height
           x = 0
         }
         win.setPosition(new PhysicalPosition(x, y).toLogical(scaleFactor));
-        win.unminimize();
         win.setFocus();
+
         x += size.width
        })
     }
@@ -392,6 +429,16 @@ async function send_event_to_danmu() {
 
 async function send_event_to_danmu2() {
   await appWindow.emit('state-changed', { msg: '消息消息消息'+count++ });
+}
+
+async function tts(txt) {
+  const speech = useSpeechSynthesis(txt || '您还没有告诉我让我说什么?', {
+    lang: 'zh-CN',
+    pitch: 1,
+    rate: 1,
+    volume: 1,
+  })
+  speech.speak()
 }
 </script>
 
@@ -461,7 +508,10 @@ async function send_event_to_danmu2() {
         <button class="x" type="button" @click="show_danmu(roomid)">打开弹幕窗口</button>
         <button class="x" type="button" @click="show_danmu('8094023')">打开码之魂弹幕窗口</button>
         <button class="x" type="button" @click="show_danmu('3796382')">打开冬灰条弹幕窗口</button>
-  
+        <button class="x" type="button" @click="tts(input)">tts</button>  
+        <button class="x" type="button" @click="show_subtitles()">字幕</button>
+        <button class="x" type="button" @click="cancel_subtitles_penetration()">字幕不穿透</button>
+        <button class="x" type="button" @click="subtitles_penetration()">字幕穿透</button>
       </div>
       <div>
         <input id="greet-input" v-model="input" placeholder="请输入弹幕或私信内容..." style="width:30vw" />

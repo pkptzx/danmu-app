@@ -53,10 +53,14 @@ Rust中使用的库:
 ### 先决条件
 1. 已安装 `nodejs && yarn(v3)` 。
 2. 安装 `tauri-cli` 。
-
 ```console
 cargo install tauri-cli
 ```
+3. 需要cmake,并设置环境变量
+```powershell
+[Environment]::SetEnvironmentVariable("path", "G:\cmake\bin;"+$env:path)
+```
+
 ### 步骤
 1. 以 Debug 模式运行
 ```console
@@ -65,7 +69,7 @@ yarn tauri dev
 >生成的可执行文件路径: `danmu-app\src-tauri\target\debug\danmu-app.exe`  
 >不建议分发此文件,体积较大,未编译优化,仅作为开发阶段测试调试
 
-2. 打包
+1. 打包
 ```console
 yarn tauri build
 ```

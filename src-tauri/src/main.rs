@@ -15,7 +15,7 @@ fn main() {
         // })
         .plugin(danmu_app::init())
         .invoke_handler(tauri::generate_handler![
-            commands::get_cookies,commands::get_current_path
+            commands::get_cookies,commands::get_current_path,commands::window_mouse_penetration,commands::window_cancel_mouse_penetration
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

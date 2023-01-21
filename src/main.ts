@@ -2,7 +2,7 @@ import { createApp } from "vue";
 import "./style.css";
 import App from "./App.vue";
 import router from "./router";
-import { Quasar,Notify } from 'quasar'
+import { Quasar,Notify,Dialog } from 'quasar'
 import quasarLang from 'quasar/lang/zh-CN'
 
 // Import icon libraries
@@ -16,7 +16,7 @@ import 'quasar/dist/quasar.css'
 const app = createApp(App);
 
 app.use(Quasar, {
-    plugins: {Notify}, // import Quasar plugins and add here
+    plugins: {Notify,Dialog}, // import Quasar plugins and add here
     lang: quasarLang,
   })
 // app.use(createPinia());

@@ -47,15 +47,14 @@ export async function init_db(){
                 guard_level INTEGER,--大航海信息\n\
                 room_admin boolean--是否房管\n\
             );");
-            console.log('创建表:danmu_msg',r);
-            let r2 = await db.execute("CREATE TABLE \"chatterbox\" (\n\
-                \"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT,\n\
+            console.log('创建表:rooms_setting',r);
+            let r2 = await db.execute("CREATE TABLE \"rooms_setting\" (\n\
                 \"roomid\" INTEGER NOT NULL,\n\
-                \"msg\" TEXT,\n\
-                \"enable\" boolean\n\
+                \"setting\" TEXT,\n\
+                \"chatterbox\" TEXT,\n\
+                PRIMARY KEY (\"roomid\")\n\
               );");
-
-              console.log('创建表:chatterbox',r2);
+              console.log('创建表:rooms_setting',r2);
         }else{
         // 3 检查版本是否一致,是否需要改变表结构以数据升级
 
@@ -104,7 +103,7 @@ export async function insert_danmu_msg(db,data){
         console.log("保存弹幕结果: ",r);
     });
 }
-
+// 查询弹幕记录
 export async function get_danmu_msg(db,filter,pageNum,pageSize){
     let sql = `select * from danmu_msg`;
     if(filter){
@@ -113,19 +112,15 @@ export async function get_danmu_msg(db,filter,pageNum,pageSize){
     return get_pagination_data(db,sql,pageNum,pageSize);
 }
 //查询话痨
-export async function get_chatterbox(db,roomid){
-    let sql = `select * from chatterbox where roomid='${roomid}'`;
+export async function get_room_chatterbox(db,roomid){
+    let sql = `select chatterbox from rooms_setting where roomid='${roomid}'`;
     return db.select(sql);
 }
 //保存话痨
-export async function save_chatterbox(db,room_id,datas){
-    db.execute(`delete from chatterbox where roomid=${room_id}`)
-    //实际上支持批量保存,我只是懒
+export async function save_room_chatterbox(db,room_id,datas){
     let count = 0;
-    for (const key in datas) {
-        let sql = gen_insert_sql('chatterbox',datas[key])
-        count += await db.execute(sql);  
-    }
+    const sql = `INSERT OR REPLACE INTO rooms_setting(roomid,chatterbox) VALUES(?1,?2)`
+    count = db.execute(sql,[room_id,JSON.stringify(datas)]);
     return count
 }
 // 分页查询

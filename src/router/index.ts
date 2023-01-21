@@ -29,6 +29,11 @@ const router = createRouter({
       name: "setChatterBox",
       component: () => import("../views/SetChatterBox.vue"),
     },
+    {
+      path: "/subtitles",
+      name: "subtitles",
+      component: () => import("../views/subtitles.vue"),
+    },
   ],
 });
 

@@ -22,6 +22,12 @@ base64 = "0.21.0"
 aes-gcm = "0.10.1"
 rusqlite = { version = "0.28.0", features = ["bundled"] }
 thiserror = "1.0"
+# clippers = "0.1.2"
+# resvg = "0.28.0"
+anyhow = "1.0.68"
+image = "0.24.5"
+# arboard = "3.2.0"
+# clipboard-win = "4.5.0"
 
 [dependencies.windows]
 version = "0.44.0"

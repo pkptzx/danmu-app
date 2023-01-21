@@ -24,7 +24,7 @@
                                 <q-btn color="primary" label="设置话痨" push size="sm" v-close-popup @click="open_chatterbox" />
                                 <q-toggle v-model="chatterbox" checked-icon="check" unchecked-icon="clear" color="green" label="话痨模式" />
                             </div>
-                            <q-separator vertical inset class="q-mx-lg" />
+                            <q-separator vertical inset class="q-mx-sm" />
                             <div class="column">
                                 <q-toggle v-model="show_join" checked-icon="check" unchecked-icon="clear" color="green" label="显示进入" />
                                 <q-toggle v-model="show_face" checked-icon="check" unchecked-icon="clear" color="green" label="显示头像">
@@ -36,7 +36,7 @@
                                 <div class="q-pa-none q-gutter-xs">
                                     <q-toggle v-model="is_autoreply" checked-icon="check" unchecked-icon="clear" color="green"
                                         label="自动回复" />
-                                    <q-btn round color="green" size="xs" icon="settings" />
+                                    <q-btn round color="green" size="xs" icon="settings" @click="show_reply_setting"/>
                                 </div>
                                 <q-toggle v-model="wintop" checked-icon="check" unchecked-icon="clear" color="green" label="置顶" />
                                 <q-separator spaced />
@@ -51,33 +51,56 @@
                     <q-scroll-area style="width:100%; height: calc( 100vh - 94px);" ref="msger_chat" @scroll="onScroll">
                         <div class="q-pa-md row justify-center">
                             <div style="width: 100%;">
-                            <template v-for="item in items" :key="item.id">
-                                <q-chat-message v-if="item.type == 'OPEN'" :label="item.msg" label-html />
-                                <q-chat-message v-if="item.type == 'STARTLISTEN'" :label="item.msg + ' - ' +up_name" label-html />
-                                <q-chat-message v-if="item.type == 'ERROR'" :label="item.msg" label-html />
-                                <q-chat-message v-if="item.type == 'CLOSE'" :label="item.msg" label-html />
-                                <q-chat-message v-if="item.type == 'INTERACT_WORD' && item.body.action == 'enter'" :label="'<span style=\'color:#8cd9ff;\'>' + item.body.user.uname + '</span> 进入直播间'" label-html />
-                                <q-chat-message v-if="item.type == 'INTERACT_WORD' && item.body.action == 'follow'" 
-                                :label="'<span style=\'color:#8cd9ff;\'>' + item.body.user.uname + '</span> <span style=\'color:red;\'>关注直播间</span>'" label-html />
-                                <q-chat-message v-if="item.cmd == 'LIKE_INFO_V3_CLICK'" 
-                                :label="'<span style=\'color:#8cd9ff;\'>' + item.data.uname + '</span> <span style=\'color:green;\'>点赞了直播间</span>'" label-html />
-                                <q-chat-message v-if="item.cmd == 'room_admin_entrance'" 
-                                :label="'恭喜<span style=\'color:#8cd9ff;\'>' + item.uname + '</span> <span style=\'color:green;\'>成为房管</span>'" label-html />
-                                <q-chat-message v-if="item.cmd == 'ROOM_ADMIN_REVOKE'" 
-                                :label="'<span style=\'color:#8cd9ff;\'>' + item.uname + '</span> <span style=\'color:green;\'>被撤销房管</span>'" label-html />
-                                <q-chat-message v-if="item.type == 'DANMU_MSG'" 
-                                :name="(item.body.user.uid == up_uid ? ('<span style=\'color:red;\'>[主播]</span>'): '')+(item.body.user.identity.room_admin ? ('<span style=\'color:red;\'>[房]</span>'): '') + item.body.user.uname" name-html
-                                    :avatar="show_face ? (item.body.user.face ? item.body.user.face : 'https://i0.hdslb.com/bfs/face/member/noface.jpg_48x48.jpg') : undefined"
-                                    :stamp="new Date(item.timestamp).toLocaleTimeString().replace(/([\d]+:[\d]{2})(:[\d]{2})(.*)/, '$1$3')"
-                                    :bg-color="item.body.user.uid == my_uid ? 'primary':'amber-7'" 
-                                    :text-color="item.body.user.uid == my_uid ? 'white':'black'" 
-                                    :sent="item.body.user.uid == my_uid">
-                                    <div v-if="item.body.emoticon?.url != null"><img :style="'width: '+item.body.emoticon.width/3+'px; height: '+item.body.emoticon.height/3+'px;'" :src="item.body.emoticon.url" /></div>
-                                    <div class="selectable" v-else v-html="item.body.contentHtml"></div>
-                                </q-chat-message>
-                            </template>
+                                <template v-for="item in items" :key="item.id">
+                                    <q-chat-message v-if="item.type == 'OPEN'" :label="item.msg" label-html @contextmenu.stop.prevent />
+                                    <q-chat-message v-if="item.type == 'STARTLISTEN'" :label="item.msg + ' - ' +up_name" label-html @contextmenu.stop.prevent />
+                                    <q-chat-message v-if="item.type == 'ERROR'" :label="item.msg" label-html @contextmenu.stop.prevent />
+                                    <q-chat-message v-if="item.type == 'CLOSE'" :label="item.msg" label-html @contextmenu.stop.prevent />
+                                    <q-chat-message v-if="item.type == 'INTERACT_WORD' && item.body.action == 'enter'"
+                                        :label="'<span style=\'color:#8cd9ff;\'>' + item.body.user.uname + '</span> 进入直播间'" label-html @contextmenu.stop.prevent />
+                                    <q-chat-message v-if="item.type == 'INTERACT_WORD' && item.body.action == 'follow'"
+                                        :label="'<span style=\'color:#8cd9ff;\'>' + item.body.user.uname + '</span> <span style=\'color:red;\'>关注直播间</span>'"
+                                        label-html @contextmenu.stop.prevent />
+                                    <q-chat-message v-if="item.cmd == 'LIKE_INFO_V3_CLICK'" @contextmenu.stop.prevent
+                                        :label="'<span style=\'color:#8cd9ff;\'>' + item.data.uname + '</span> <span style=\'color:green;\'>点赞了直播间</span>'"
+                                        label-html />
+                                    <q-chat-message v-if="item.cmd == 'room_admin_entrance'" @contextmenu.stop.prevent
+                                        :label="'恭喜<span style=\'color:#8cd9ff;\'>' + item.uname + '</span> <span style=\'color:green;\'>成为房管</span>'"
+                                        label-html />
+                                    <q-chat-message v-if="item.cmd == 'ROOM_ADMIN_REVOKE'" @contextmenu.stop.prevent
+                                        :label="'<span style=\'color:#8cd9ff;\'>' + item.uname + '</span> <span style=\'color:green;\'>被撤销房管</span>'"
+                                        label-html />
+                                    <q-chat-message v-if="item.type == 'DANMU_MSG'" @contextmenu.prevent="set_context_param(item,$event)"
+                                        :name="(item.body.user.uid == up_uid ? ('<span style=\'color:red;\'>[主播]</span>'): '')+(item.body.user.identity.room_admin ? ('<span style=\'color:red;\'>[房]</span>'): '') + item.body.user.uname"
+                                        name-html
+                                        :avatar="show_face ? (item.body.user.face ? item.body.user.face : 'https://i0.hdslb.com/bfs/face/member/noface.jpg_48x48.jpg') : undefined"
+                                        :stamp="new Date(item.timestamp).toLocaleTimeString().replace(/([\d]+:[\d]{2})(:[\d]{2})(.*)/, '$1$3')"
+                                        :bg-color="item.body.user.uid == my_uid ? 'primary':'amber-7'"
+                                        :text-color="item.body.user.uid == my_uid ? 'white':'black'" :sent="item.body.user.uid == my_uid">
+                                        <img v-if="item.body.emoticon?.url != null"
+                                            :style="'width: '+item.body.emoticon.width/3+'px; height: '+item.body.emoticon.height/3+'px;'"
+                                            :src="item.body.emoticon.url" />
+                                        <div class="selectable" v-else v-html="item.body.contentHtml"></div>
+                                    </q-chat-message>
+                                </template>
+                                <q-menu touch-position auto-close context-menu>
+                                    <q-list>
+                                        <q-item v-close-popup clickable @click="clipboard_text(context_param.body.content)">
+                                            <q-item-section>复制弹幕</q-item-section>
+                                        </q-item>
+                                        <q-item v-close-popup clickable @click="clipboard_text(context_param.body.user.uname)">
+                                            <q-item-section>复制昵称</q-item-section>
+                                        </q-item>
+                                        <q-item v-close-popup clickable @click="open_borrower(context_param.body.user.uid)">
+                                            <q-item-section>访问空间</q-item-section>
+                                        </q-item>
+                                        <q-item v-close-popup clickable @click="clipboard_text(context_param.body.user.uid)">
+                                            <q-item-section>复制UID</q-item-section>
+                                        </q-item>
+                                    </q-list>
+                                </q-menu>
+                            </div>
                         </div>
-                    </div>
                     </q-scroll-area>
                     <q-page-sticky :style="(scroll_sticky.show && scroll_sticky.unread!=0) ? '':'display: none;'" expand position="bottom" :offset="[0, 0]">
                         <q-btn size="xs" color="accent" icon="arrow_downward" :label="scroll_sticky.unread" @click="scrollBottom"/>
@@ -105,7 +128,7 @@
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faHatWizard, faUserSecret, faCommentAlt } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { move_window, Position } from 'tauri-plugin-positioner-api'
+import { moveWindow, Position } from 'tauri-plugin-positioner-api'
 import { emit,listen } from '@tauri-apps/api/event';
 import { appWindow,WebviewWindow } from '@tauri-apps/api/window';
 import { onMounted, onUnmounted, ref, nextTick, watch } from 'vue'
@@ -115,13 +138,15 @@ import * as DataBase from '../assets/js/db.js';
 import { useQuasar } from 'quasar'
 import 'animate.css';
 import * as bApi from '../assets/js/biliApi.js';
-
+import * as rasterizeHTML from 'rasterizehtml';
+import domtoimage from 'dom-to-image'
+import { fetch, Body,ResponseType } from '@tauri-apps/api/http';
 library.add(faHatWizard, faUserSecret, faCommentAlt)
 
-move_window(Position.BottomRight)
-// TODO: 将设置的一堆变量放到一个变量对象中,将变量保存入库,入库直接存json,话痨存成数组.这样一个直播间对应一条数据,话痨和设置
-// TODO: 话痨需要增加时间间隔的设置,中间的间隔就这样吧,再加个整体的间隔
-// TODO: 自动回复,需要增加设置,设置回复的项有哪些,关注,点赞,舰长进入直播间,礼物,房管,红包?
+moveWindow(Position.BottomRight)
+// TODO: 自动回复,开启和设置,是否开启语音播报,可以设置回复内容,$$表示名字,关注,点赞,舰长进入直播间,礼物,房管,红包?
+// TODO: 关键字回复,开启和设置
+// TODO: SC 礼物 展示
 let db;
 const $q = useQuasar()
 const items = ref<Array<String>>([])
@@ -140,6 +165,7 @@ const up_face = ref()
 const is_autoreply = ref(false)
 const sending = ref(false)
 const scroll_sticky = ref({show:false,unread:0})
+let context_param,context_el;
 let errtip = ref(false);
 let unlisten: any;
 let room_id ;
@@ -201,7 +227,7 @@ onMounted(async () => {
         },
         onIncomeSuperChat: (msg) => {
             console.log(msg.id, msg.body)
-        },        
+        },  
         onUserAction: (msg) => {
             const body: UserActionMsg = msg.body;
             if (body.action == 'enter') {
@@ -217,8 +243,11 @@ onMounted(async () => {
             } else if (body.action == 'share') {
                 addData(msg)
             }
-
+            
         },
+        onGift: (msg) => {
+            console.log(msg.id, msg.body)
+        },       
         onGuardBuy: (msg) => {
             //舰长上舰消息
             console.log('舰长上舰消息',msg);
@@ -269,14 +298,14 @@ function onScroll ( { verticalPosition }) {
             scroll_sticky.value.show = true;
         }
         // 10是误差,刚好滚到不容易~
-        if(verticalPosition+10 >= (msger_chat.value.getScroll().verticalSize-msger_chat.value.getScroll().verticalContainerSize)){
+        if(verticalPosition+10 >= (msger_chat.value?.getScroll().verticalSize-msger_chat.value.getScroll().verticalContainerSize)){
             scroll_sticky.value.show = false;
             scroll_sticky.value.unread = 0;
         }
         lastPosition = verticalPosition
 }
 function scrollBottom () {
-    msger_chat.value.setScrollPosition('vertical', msger_chat.value.getScroll().verticalSize, 300)
+    msger_chat.value?.setScrollPosition('vertical', msger_chat.value.getScroll().verticalSize, 300)
     scroll_sticky.value.show = false;
     scroll_sticky.value.unread = 0;
 }
@@ -323,7 +352,7 @@ async function autoreply(msg){
     if (msg.type == 'INTERACT_WORD' && msg.body.action == 'follow'){
         send_danmu_with_notify(room_id,`[花]感谢${msg.body.user.uname.length>12 ? (msg.body.user.uname.substring(0,9) + '...') :msg.body.user.uname}的关注`)
     }else if (msg.cmd == 'LIKE_INFO_V3_CLICK'){
-        send_danmu_with_notify(room_id,`[哇]感谢${msg.data.uname.length>12 ? (msg.data.uname.substring(0,9) + '...') :msg.data.uname}的点赞`)
+        // send_danmu_with_notify(room_id,`[哇]感谢${msg.data.uname.length>12 ? (msg.data.uname.substring(0,9) + '...') :msg.data.uname}的点赞`)
     }else if (msg.cmd == 'room_admin_entrance'){
         send_danmu_with_notify(room_id,`[爱]恭喜${msg.uname.length>11 ? (msg.uname.substring(0,8) + '...') :msg.uname}成为房管`)
     }else if (msg.cmd == 'ROOM_ADMIN_REVOKE'){
@@ -385,8 +414,9 @@ async function send_dm(){
     if(dmMsg.value.trim().length == 0){
         return;
     }
+    dmMsg.value = dmMsg.value.trim()
     sending.value=true
-    bApi.send_danmu(room_id, `${dmMsg.value.trim()}`).then((resp: any) => {
+    bApi.send_danmu(room_id, `${dmMsg.value}`).then((resp: any) => {
         sending.value=false
         console.log(resp.data);
         if (resp.data.message == '') {
@@ -454,8 +484,74 @@ function open_chatterbox() {
     chatterboxWindow.setFocus();
   });
 }
+function show_reply_setting(){
+    $q.dialog({
+        title: '选择需要开启的自动回复',
+        message: '请选择需要开启的自动回复.',
+        options: {
+            class:'text-center',
+          type: 'toggle',
+          model: [],
+          isValid: model => model.includes('opt1') && model.includes('opt2'),
+          inline: true,
+        dense: true,
+        color: 'green',
+          items: [
+            { label: '点赞回复', value: 'opt1' },
+            { label: '关注回复', value: 'opt2' },
+            { label: '礼物回复', value: 'opt3' },
+            { label: '房管事件回复', value: 'opt3' },
+            { label: '上舰回复', value: 'opt3' },
+            { label: '红包事件回复', value: 'opt3' },
+          ]
+        },
+        cancel: true,
+        persistent: true
+      }).onOk(data => {
+        // console.log('>>>> OK, received', data)
+      })
+}
 
+function set_context_param(item,evt){
+    context_param = item
+    context_el = evt.srcElement
+    console.log('show_context>>>',item,evt)
 
+}
+// 复制元素图到剪贴板，透明的会展示成黑色。弃用
+function clipboard_data(el) {
+    // domtoimage.toBlob(el)
+    // .then(function (blob) {
+    //     console.log(blob)
+    //     const imgSrc = window.URL.createObjectURL(blob);
+    //     let imgtest = document.getElementById("imgtest")
+    //     imgtest.src = imgSrc;
+    //     // navigator.clipboard.write([
+    //     //         new window.ClipboardItem({
+    //     //             [blob['type']]: blob
+    //     //         })
+    //     //     ]);
+    // })
+    // .catch(function (error) {
+    //     console.error('生成失败', error);
+    // });
+    domtoimage.toPng(el)
+        .then(function (dataUrl) {
+            console.log(dataUrl);
+            navigator.clipboard.write([
+                new window.ClipboardItem({
+                    [blob['type']]: blob
+                })
+            ]);
+
+        })
+        .catch(function (error) {
+            console.error('oops, something went wrong!', error);
+        });
+}
+function clipboard_text(text){
+    navigator.clipboard.writeText(text)
+}
 
 onUnmounted(async () => {
     await unlisten();
@@ -464,21 +560,25 @@ onUnmounted(async () => {
 watch(wintop, (newTop) => {
     appWindow.setAlwaysOnTop(newTop);
 })
-let chatterbox_interval;
+let chatterbox_timer;
 let msg_idx = 0;
 watch(chatterbox, (newTop) => {
     if(newTop){
-        DataBase.get_chatterbox(db, room_id).then(datas => {
-            console.log(datas);
-            if(datas.length > 0){
-                clearInterval(chatterbox_interval)
-                chatterbox_interval = setInterval(()=>{
-                    send_danmu_with_notify(room_id, datas[msg_idx++].msg);
-                    if(msg_idx >= datas.length){
+        DataBase.get_room_chatterbox(db, room_id).then(datas => {
+            console.log(datas)
+            const chatters = datas.length!=0 ? JSON.parse(datas[0].chatterbox) : []
+            if (chatters.length > 0) {
+                clearTimeout(chatterbox_timer);
+                (function loop_send_chatter() {
+                    send_danmu_with_notify(room_id, chatters[msg_idx++].msg);
+                    if (msg_idx >= chatters.length) {
                         msg_idx = 0
+                        chatterbox_timer = setTimeout(loop_send_chatter, 10000);
+                    }else{
+                        chatterbox_timer = setTimeout(loop_send_chatter, 2000);
                     }
-                },2000);
-            }else{
+                })();
+            } else {
                 $q.notify({
                     message: '请先设置话痨!',
                     color: 'red',
@@ -492,9 +592,18 @@ watch(chatterbox, (newTop) => {
             }
         })
     }else{
-        clearInterval(chatterbox_interval)
+        clearTimeout(chatterbox_timer)
     }
 })
+
+async function open_borrower(uid){
+  var el = document.createElement("a");
+  document.body.appendChild(el);
+  el.href = `https://space.bilibili.com/${uid}`;
+  el.target = '_blank'; 
+  el.click();
+  document.body.removeChild(el);
+}
 </script>
 
 <style scoped>
