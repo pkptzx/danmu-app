@@ -29,7 +29,7 @@ jobs:
       # 发布 Release，使用自定义名称
       - name: Generate changelog
         id: create_release
-        run: npx changelogithub --draft --name 弹幕君${{ steps.get_version.outputs.VERSION }}
+        run: npx changelogithub --name 弹幕君${{ steps.get_version.outputs.VERSION }}
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
@@ -80,6 +80,6 @@ jobs:
         with:
           tagName: ${{ github.ref_name }} # This only works if your workflow triggers on new tags.
           releaseName: 'App Name v__VERSION__' # tauri-action replaces \_\_VERSION\_\_ with the app version.
-          releaseBody: 'See the assets to download and install this version.'
+          releaseBody: ''
           releaseDraft: true
           prerelease: false
