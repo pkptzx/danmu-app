@@ -99,3 +99,7 @@ yarn tauri build
 - awesome-tauri https://github.com/tauri-apps/awesome-tauri
 - plugins-workspace https://github.com/tauri-apps/plugins-workspace
 
+## github action 相关
+Tauri GitHub Action: https://tauri.app/v1/guides/building/cross-platform#tauri-github-action
+生成变更日志: https://github.com/antfu/changelogithub
+Git提交时前缀规范: https://www.conventionalcommits.org/
