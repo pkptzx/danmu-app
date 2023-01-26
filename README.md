@@ -11,7 +11,7 @@
 # 弹幕君
 弹幕君一个没有啥目标的查看哔哩哔哩直播弹幕工具  
 
-下载地址 https://github.com/pkptzx/danmu-app/releases danmu-app.zip
+下载地址 https://github.com/pkptzx/danmu-app/releases/latest/download/danmu-app.zip
 
 
 ## 功能
