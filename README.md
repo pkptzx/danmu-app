@@ -92,14 +92,14 @@ yarn tauri build
 - Axios适配Tauri https://github.com/persiliao/axios-tauri-api-adapter
 
 ## Tauri 参考资料
-- 入门 https://tauri.app/v1/guides/
+- 入门 https://tauri.app/v1/guides
 - 配置 https://tauri.app/v1/api/config
-- JS API https://tauri.app/v1/api/js/
-- Rust API https://docs.rs/tauri/latest/tauri/
+- JS API https://tauri.app/v1/api/js
+- Rust API https://docs.rs/tauri/latest/tauri
 - awesome-tauri https://github.com/tauri-apps/awesome-tauri
 - plugins-workspace https://github.com/tauri-apps/plugins-workspace
 
 ## github action 相关
-Tauri GitHub Action: https://tauri.app/v1/guides/building/cross-platform#tauri-github-action
-生成变更日志: https://github.com/antfu/changelogithub
-Git提交时前缀规范: https://www.conventionalcommits.org/
+Tauri GitHub Action: https://tauri.app/v1/guides/building/cross-platform#tauri-github-action  
+生成变更日志: https://github.com/antfu/changelogithub  
+Git提交时前缀规范: https://www.conventionalcommits.org  
