@@ -34,6 +34,11 @@ const router = createRouter({
       name: "subtitles",
       component: () => import("../views/subtitles.vue"),
     },
+    {
+      path: "/settings/reply",
+      name: "SettingReply",
+      component: () => import("../views/SettingReply.vue"),
+    },
   ],
 });
 

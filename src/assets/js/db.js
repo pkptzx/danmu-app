@@ -123,6 +123,35 @@ export async function save_room_chatterbox(db,room_id,datas){
     count = db.execute(sql,[room_id,JSON.stringify(datas)]);
     return count
 }
+export const default_event_settings = {
+    'JOIN_ROOM':{replyText:'欢迎$$进入直播间',tip:false,reply:false,tts:false},
+    'FOLLOW_ROOM':{replyText:'[花]感谢$$关注直播间',tip:true,reply:true,tts:false},
+    'GIFT':{replyText:'感谢$$投喂的$$',tip:true,reply:false,tts:false},
+    'LIKE_ROOM':{replyText:'感谢$$点赞直播间',tip:false,reply:false,tts:false},
+    'RED_POCKET':{replyText:'感谢$$的红包',tip:true,reply:false,tts:false},
+    'GUARD_BUY':{replyText:'万分感谢$$上舰',tip:true,reply:false,tts:false},
+    'ROOM_ADMIN_ENTRANCE':{replyText:'恭喜$$成为房管',tip:true,reply:false,tts:false},
+    'ROOM_ADMIN_REVOKE':{replyText:'逗比$$被撤销房管',tip:true,reply:false,tts:false},
+}
+//查询事件回复
+export async function get_event_settings(db,roomid){
+    let sql = `select event_settings from rooms_setting where roomid='${roomid}'`;
+    const ds = await db.select(sql);
+    const event_settings = ds['event_settings']
+    if (event_settings){
+        return event_settings
+    }else{
+        return default_event_settings
+    }
+}
+//保存事件回复
+export async function save_event_settings(db,room_id,datas){
+    let count = 0;
+    const sql = `INSERT OR REPLACE INTO rooms_setting(roomid,event_settings) VALUES(?1,?2)`
+    count = db.execute(sql,[room_id,JSON.stringify(datas)]);
+    return count
+}
+
 // 分页查询
 async function get_pagination_data(db,selectSql,pageNum,pageSize){
     const sqlCount = `SELECT COUNT(1) as count from (${selectSql})`;
