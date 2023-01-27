@@ -124,10 +124,6 @@ async function open_danmu_query(){
     danmuQueryWindow?.show();
   });
   danmuQueryWindow.once('tauri://error', function (e) {
-    //如果窗口已经打开了,会报label重复的错误.所以需要先getByLabel查找窗体
-    //但,在开发的时候如果刷新了页面,会导致getByLabel返回null
-    //这是当前版本官方确认的bug,所以才需要在这补上已经存在的窗口的处理.
-    //如果tauri更新了,就不需要这个方法了
     console.error(e)
     danmuQueryWindow.unminimize();
     danmuQueryWindow.setFocus();
@@ -350,10 +346,6 @@ async function show_danmu(room_id) {
     danmuWindow?.show();
   });
   danmuWindow.once('tauri://error', function (e) {
-    //如果窗口已经打开了,会报label重复的错误.所以需要先getByLabel查找窗体
-    //但,在开发的时候如果刷新了页面,会导致getByLabel返回null
-    //这是当前版本官方确认的bug,所以才需要在这补上已经存在的窗口的处理.
-    //如果tauri更新了,就不需要这个方法了
     console.error(e)
     danmuWindow.unminimize();
     danmuWindow.setFocus();
@@ -401,7 +393,6 @@ async function layout_danmu_win() {
   const m_size = monitor?.size;
   const scaleFactor = monitor?.scaleFactor
   console.log(m_size)
-  // 注意!!! 在开发模式中刷新界面了,跨窗口就找不到了.
   const wins = getAll();
   let x = 0
   let y = 0;
@@ -474,7 +465,7 @@ async function tts(txt) {
           </q-item-section>
         </q-item>
       </q-card>
-      <q-card class="data-card text-white" style="background: #ffd8be;">
+      <q-card class="data-card text-white" style="background: #ffd8be;" >
         <q-item>
           <q-item-section class="text-center items-center">
             <q-icon name="trending_up" size="48px" style="color: rgba(252,161,71,1);" />
