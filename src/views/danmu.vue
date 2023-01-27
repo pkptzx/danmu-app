@@ -4,7 +4,9 @@
             <q-header elevated>
                 <q-toolbar data-tauri-drag-region>
                     <!-- <q-icon data-tauri-drag-region name="question_answer" color="green" size="32px" /> -->
-                    <q-spinner-comment data-tauri-drag-region color="green" size="32px" />
+                    <q-avatar size="32px">
+                        <img data-tauri-drag-region :src="up_face">
+                    </q-avatar>
                     <q-toolbar-title data-tauri-drag-region>
                         {{ up_name }}
                         <q-tooltip class="bg-indigo" anchor="bottom middle" self="top middle">
@@ -97,6 +99,9 @@
                                         <q-item v-close-popup clickable @click="clipboard_text(context_param.body.user.uid)">
                                             <q-item-section>复制UID</q-item-section>
                                         </q-item>
+                                        <q-item v-close-popup clickable @click="updateUserInfoByForce(context_param.body.user.uid)">
+                                            <q-item-section>更新头像</q-item-section>
+                                        </q-item>
                                     </q-list>
                                 </q-menu>
                             </div>
@@ -161,7 +166,7 @@ const my_uid = ref()
 const dmMsg = ref('')
 const up_name = ref('')
 const up_uid = ref()
-const up_face = ref()
+const up_face = ref('/noface.jpg')
 const is_autoreply = ref(false)
 const sending = ref(false)
 const scroll_sticky = ref({show:false,unread:0})
@@ -410,6 +415,26 @@ async function updateFace(data){
         }
     }
 }
+//强制更新
+async function updateUserInfoByForce(uid) {
+    let faces = localStorage.getItem('faces')
+    if (faces == null) {
+        faces = "{}"
+    }
+    faces = JSON.parse(faces);
+    bApi.getAccInfo(uid).then((info) => {
+        console.log('info', info);
+        faces[uid] = info.data.data.face;
+        localStorage.setItem('faces', JSON.stringify(faces));
+        items.value.forEach((data) => {
+            if (data.body && data.body.user) {
+                if (data.body.user.uid == uid) {
+                    data.body.user.face = info.data.data.face;
+                }
+            }
+        })
+    });
+}
 async function send_dm(){
     if(dmMsg.value.trim().length == 0){
         return;
@@ -485,31 +510,59 @@ function open_chatterbox() {
   });
 }
 function show_reply_setting(){
-    $q.dialog({
-        title: '选择需要开启的自动回复',
-        message: '请选择需要开启的自动回复.',
-        options: {
-            class:'text-center',
-          type: 'toggle',
-          model: [],
-          isValid: model => model.includes('opt1') && model.includes('opt2'),
-          inline: true,
-        dense: true,
-        color: 'green',
-          items: [
-            { label: '点赞回复', value: 'opt1' },
-            { label: '关注回复', value: 'opt2' },
-            { label: '礼物回复', value: 'opt3' },
-            { label: '房管事件回复', value: 'opt3' },
-            { label: '上舰回复', value: 'opt3' },
-            { label: '红包事件回复', value: 'opt3' },
-          ]
-        },
-        cancel: true,
-        persistent: true
-      }).onOk(data => {
-        // console.log('>>>> OK, received', data)
-      })
+    let settingsReplyWindow = WebviewWindow.getByLabel('settingsReply');
+  if (settingsReplyWindow) {
+    settingsReplyWindow.unminimize();
+    settingsReplyWindow.setFocus();
+    return;
+  }
+  settingsReplyWindow = new WebviewWindow('settingsReply', {
+    url: `/settings/reply`,
+    "fullscreen": false,
+    "height": 600,
+    "resizable": true,
+    "title": "设置回复",
+    "width": 800,
+    "visible": true,
+    "skipTaskbar": false,
+    "decorations": false,
+    "transparent": true,
+    "center":true
+  });
+  settingsReplyWindow.once('tauri://created', function () {
+    settingsReplyWindow?.show();
+  });
+  settingsReplyWindow.once('tauri://error', function (e) {
+    console.error(e)
+    settingsReplyWindow.unminimize();
+    settingsReplyWindow.setFocus();
+  });
+    
+    // $q.dialog({
+    //     title: '选择需要开启的自动回复',
+    //     message: '请选择需要开启的自动回复.',
+    //     options: {
+    //         class:'text-center',
+    //       type: 'toggle',
+    //       model: [],
+    //       isValid: model => model.includes('opt1') && model.includes('opt2'),
+    //       inline: true,
+    //     dense: true,
+    //     color: 'green',
+    //       items: [
+    //         { label: '点赞回复', value: 'opt1' },
+    //         { label: '关注回复', value: 'opt2' },
+    //         { label: '礼物回复', value: 'opt3' },
+    //         { label: '房管事件回复', value: 'opt3' },
+    //         { label: '上舰回复', value: 'opt3' },
+    //         { label: '红包事件回复', value: 'opt3' },
+    //       ]
+    //     },
+    //     cancel: true,
+    //     persistent: true
+    //   }).onOk(data => {
+    //     // console.log('>>>> OK, received', data)
+    //   })
 }
 
 function set_context_param(item,evt){
