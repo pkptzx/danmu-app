@@ -16,36 +16,36 @@ import { fetch,Body } from '@tauri-apps/api/http';
 
 const resout = ref();
 const input = ref('std算法具体是什么意思');
-async function ask(){
+async function ask() {
   resout.value = "正在思考，请等待......";
-const body = input.value;
-const key = CryptoJS['enc']['Latin1']['parse']('L#$@XowPu!uZ&c%u')
-	const iv = CryptoJS['enc']['Latin1']['parse']('2auvLZzxz7bo#^84')
-	const encrypted = CryptoJS['AES']['encrypt'](body, key, {
-		'iv': iv,
-		'mode': CryptoJS['mode']['CBC'],
-		'padding': CryptoJS['pad']['ZeroPadding']
-	})['toString']()
+  const body = input.value;
+  const key = CryptoJS['enc']['Latin1']['parse']('L#$@XowPu!uZ&c%u')
+  const iv = CryptoJS['enc']['Latin1']['parse']('2auvLZzxz7bo#^84')
+  const encrypted = CryptoJS['AES']['encrypt'](body, key, {
+    'iv': iv,
+    'mode': CryptoJS['mode']['CBC'],
+    'padding': CryptoJS['pad']['ZeroPadding']
+  })['toString']()
 
-	const data = JSON['stringify']({
-		'prompt': encrypted
-	});
-  console.log(data); 
+  const data = JSON['stringify']({
+    'prompt': encrypted
+  });
+  console.log(data);
   const url = "https://cc-api.sbaliyun.com/v1/completions"
-      fetch(`${url}`,{
-      method: 'POST',
-      headers:{ 
-        "referer":"https://chatgpt.sbaliyun.com/",
-          "origin":"https://chatgpt.sbaliyun.com",
-      },
-      timeout: 60000,
-      body: Body.json({
-        'prompt': encrypted
-      })
-    }).then((resp)=>{
-      console.log(resp);
-      resout.value = resp.data.choices[0].text
-    });
+  fetch(`${url}`, {
+    method: 'POST',
+    headers: {
+      "referer": "https://chatgpt.sbaliyun.com/",
+      "origin": "https://chatgpt.sbaliyun.com",
+    },
+    timeout: 60000,
+    body: Body.json({
+      'prompt': encrypted
+    })
+  }).then((resp) => {
+    console.log(resp);
+    resout.value = resp.data.choices[0].text
+  });
 }
 
 </script>
