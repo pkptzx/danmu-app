@@ -58,18 +58,18 @@
                                     <q-chat-message v-if="item.type == 'STARTLISTEN'" :label="item.msg + ' - ' +up_name" label-html @contextmenu.stop.prevent />
                                     <q-chat-message v-if="item.type == 'ERROR'" :label="item.msg" label-html @contextmenu.stop.prevent />
                                     <q-chat-message v-if="item.type == 'CLOSE'" :label="item.msg" label-html @contextmenu.stop.prevent />
-                                    <q-chat-message v-if="item.type == 'INTERACT_WORD' && item.body.action == 'enter'"
+                                    <q-chat-message v-if="event_settings.JOIN_ROOM.tip && item.type == 'INTERACT_WORD' && item.body.action == 'enter'"
                                         :label="'<span style=\'color:#8cd9ff;\'>' + item.body.user.uname + '</span> 进入直播间'" label-html @contextmenu.stop.prevent />
-                                    <q-chat-message v-if="item.type == 'INTERACT_WORD' && item.body.action == 'follow'"
+                                    <q-chat-message v-if="event_settings.FOLLOW_ROOM.tip && item.type == 'INTERACT_WORD' && item.body.action == 'follow'"
                                         :label="'<span style=\'color:#8cd9ff;\'>' + item.body.user.uname + '</span> <span style=\'color:red;\'>关注直播间</span>'"
                                         label-html @contextmenu.stop.prevent />
-                                    <q-chat-message v-if="item.cmd == 'LIKE_INFO_V3_CLICK'" @contextmenu.stop.prevent
+                                    <q-chat-message v-if="event_settings.LIKE_ROOM.tip && item.cmd == 'LIKE_INFO_V3_CLICK'" @contextmenu.stop.prevent
                                         :label="'<span style=\'color:#8cd9ff;\'>' + item.data.uname + '</span> <span style=\'color:green;\'>点赞了直播间</span>'"
                                         label-html />
-                                    <q-chat-message v-if="item.cmd == 'room_admin_entrance'" @contextmenu.stop.prevent
+                                    <q-chat-message v-if="event_settings.ROOM_ADMIN_ENTRANCE.tip && item.cmd == 'room_admin_entrance'" @contextmenu.stop.prevent
                                         :label="'恭喜<span style=\'color:#8cd9ff;\'>' + item.uname + '</span> <span style=\'color:green;\'>成为房管</span>'"
                                         label-html />
-                                    <q-chat-message v-if="item.cmd == 'ROOM_ADMIN_REVOKE'" @contextmenu.stop.prevent
+                                    <q-chat-message v-if="event_settings.ROOM_ADMIN_REVOKE.tip && item.cmd == 'ROOM_ADMIN_REVOKE'" @contextmenu.stop.prevent
                                         :label="'<span style=\'color:#8cd9ff;\'>' + item.uname + '</span> <span style=\'color:green;\'>被撤销房管</span>'"
                                         label-html />
                                     <q-chat-message v-if="item.type == 'DANMU_MSG'" @contextmenu.prevent="set_context_param(item,$event)"
@@ -155,21 +155,25 @@ moveWindow(Position.BottomRight)
 let db;
 const $q = useQuasar()
 const items = ref<Array<String>>([])
-const msger_chat = ref()
-const show_join = ref(true)
-const show_follow = ref(true)
-const wintop = ref(false)
-const chatterbox = ref(false)
-appWindow.setAlwaysOnTop(wintop.value);
-const show_face = ref(false)
-const my_uid = ref()
-const dmMsg = ref('')
-const up_name = ref('')
-const up_uid = ref()
-const up_face = ref('/noface.jpg')
-const is_autoreply = ref(false)
-const sending = ref(false)
-const scroll_sticky = ref({show:false,unread:0})
+    const show_join = ref(true)
+    const show_follow = ref(true)
+    const wintop = ref(false)
+    const chatterbox = ref(false)
+    appWindow.setAlwaysOnTop(wintop.value);
+    const show_face = ref(false)
+    const my_uid = ref()
+    const dmMsg = ref('')
+    const up_name = ref('')
+    const up_uid = ref()
+    const up_face = ref('/noface.jpg')
+    const is_autoreply = ref(false)
+    const sending = ref(false)
+    //滚动条
+    const msger_chat = ref()
+    const scroll_sticky = ref({show:false,unread:0})
+
+const event_settings = ref(DataBase.default_event_settings)
+
 let context_param,context_el;
 let errtip = ref(false);
 let unlisten: any;
@@ -192,6 +196,8 @@ onMounted(async () => {
 
 
     bApi.getCookies().then((c)=> my_uid.value = c.DedeUserID)
+
+    event_settings.value = await DataBase.get_event_settings(db, room_id)
 
     //接收全局消息
     unlisten = await listen<string>('dmMsg', (event: any) => {
@@ -354,6 +360,7 @@ async function autoreply(msg){
     if(!is_autoreply.value){
         return;
     }
+    event_settings.value.JOIN_ROOM.replyText
     if (msg.type == 'INTERACT_WORD' && msg.body.action == 'follow'){
         send_danmu_with_notify(room_id,`[花]感谢${msg.body.user.uname.length>12 ? (msg.body.user.uname.substring(0,9) + '...') :msg.body.user.uname}的关注`)
     }else if (msg.cmd == 'LIKE_INFO_V3_CLICK'){
@@ -363,6 +370,29 @@ async function autoreply(msg){
     }else if (msg.cmd == 'ROOM_ADMIN_REVOKE'){
         send_danmu_with_notify(room_id,`[妙]逗比${msg.uname.length>10 ? (msg.uname.substring(0,7) + '...') :msg.uname}被撤销房管`)
     }
+}
+// 根据配置解析弹幕
+function parseReplyDanmu(replyTemplate,uname,action){
+    //返回['弹幕','提示(完整不截断)']
+    const rst = []
+    let reply = '';
+    const no_pad_len = replyTemplate.replaceAll('$$','').length;
+    const count = s.match(/\$\$/g).length
+    if(action){
+        //感谢$$投喂的$$[哇]
+        const tmp = replyTemplate.replaceAll(/(.*\$\$.+)(\$\$)(.*)/g,'$1'+action+'$3')
+        reply = uname.length > 20-no_pad_len ? tmp.replace('$$', uname.slice(0,20-no_pad_len-3)+'...') : tmp.replace('$$',uname)
+    }else{
+        reply = uname.length > 20-no_pad_len ? replyTemplate.replace('$$', uname.slice(0,20-no_pad_len-3)+'...') : replyTemplate.replace('$$',uname)
+    }
+    rst.push(reply)
+    //tip用于展示提示和tts语音播报
+    let tip = replyTemplate.replace('$$',uname);
+    if(action){
+        tip = tip.replace('$$',action)
+    }
+    rst.push(tip)
+    return rst;
 }
 function send_danmu_with_notify(room_id,msg){
     bApi.send_danmu(room_id, msg).then((resp: any) => {
@@ -517,7 +547,7 @@ function show_reply_setting(){
     return;
   }
   settingsReplyWindow = new WebviewWindow('settingsReply', {
-    url: `/settings/reply`,
+    url: `/settings/reply/${room_id}`,
     "fullscreen": false,
     "height": 600,
     "resizable": true,
@@ -620,7 +650,7 @@ watch(chatterbox, (newTop) => {
         DataBase.get_room_chatterbox(db, room_id).then(datas => {
             console.log(datas)
             const chatters = datas.length!=0 ? JSON.parse(datas[0].chatterbox) : []
-            if (chatters.length > 0) {
+            if (chatters && chatters.length > 0) {
                 clearTimeout(chatterbox_timer);
                 (function loop_send_chatter() {
                     send_danmu_with_notify(room_id, chatters[msg_idx++].msg);

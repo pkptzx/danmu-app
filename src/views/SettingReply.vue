@@ -1,5 +1,5 @@
 <template>
-    <Window icon="/vite.svg" bg-color="bg-light-blue-1" :title="'设置回复'" no-space>
+    <Window icon="/vite.svg" bg-color="bg-light-blue-1" :title="'设置回复 ' + roomid" no-space>
   
         <div class="q-gutter-y-md" >
             <q-card>
@@ -160,6 +160,15 @@
                                         <q-toggle color="blue" dense v-model="event_settings.ROOM_ADMIN_REVOKE.tts" label="语音播报" />
                                     </q-item-section>
                                 </q-item>
+                                <q-item tag="div">
+                                    <q-item-section></q-item-section>
+                                    <q-item-section side>
+                                        <q-btn color="secondary" icon="cancel" label="取消" @click="onClose" />
+                                    </q-item-section>
+                                    <q-item-section side>                                    
+                                    <q-btn color="primary" icon="save" label="保存" @click="on_save_event_settings" />
+                                </q-item-section>
+                                </q-item>
                             </q-list>
                     </q-tab-panel>
                     <q-tab-panel name="keyword_reply">
@@ -199,20 +208,52 @@
 <script setup lang="ts">
 //@ts-nocheck
 import { computed,onBeforeMount, onMounted, onUnmounted, ref, reactive, watch } from "vue";
+import { useRoute } from "vue-router";
 import Window from '../components/Window.vue';
 import * as DataBase from '../assets/js/db.js';
 const event_settings = ref(DataBase.default_event_settings)
+import { appWindow } from "@tauri-apps/api/window";
+import { useQuasar } from 'quasar'
+const $q = useQuasar()
 const tab = ref('event_reply')
 let db;
-let roomid = ref(3796382)
-onBeforeMount(async () => {
+const roomid = ref()
+onMounted(async () => {
+    const route = useRoute()
+    roomid.value = Number(route.params.room_id);
     db = await DataBase.init_db()
     event_settings.value = await DataBase.get_event_settings(db, roomid.value)
 })
-onMounted(async () => {
-    // db = await DataBase.init_db()
-    // event_settings.value = await DataBase.get_event_settings(db, roomid.value)
-})
+
+async function on_save_event_settings(){
+    DataBase.save_event_settings(db, roomid.value ,event_settings.value).then(count => {
+        if (count > 0) {
+            $q.notify({
+                message: `保存成功`,
+                type: 'positive',
+                html: true,
+                timeout: 300,
+                progress: true,
+                onDismiss: () => {
+                    //appWindow.close()
+                }
+            })
+        } else {
+            if (chatterboxes.value.length != 0) {
+                $q.notify({
+                    message: `保存失败前检查`,
+                    type: 'negative',
+                    html: true,
+                    timeout: 800,
+                    progress: true
+                })
+            }
+        }
+    });
+}
+async function onClose() {
+    appWindow.close()
+}
 </script>
 
 <style scoped>

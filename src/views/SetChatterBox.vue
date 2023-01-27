@@ -37,7 +37,7 @@ onMounted(async () => {
     DataBase.get_room_chatterbox(db, room_id.value).then(datas => {
         console.log(datas)
         const chatters = datas.length!=0 ? JSON.parse(datas[0].chatterbox) : []
-        if (chatters.length > 0) {
+        if (chatters && chatters.length > 0) {
             chatterboxes.value = chatters
         } else {
             chatterboxes.value = [{

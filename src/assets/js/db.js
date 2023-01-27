@@ -127,7 +127,7 @@ export const default_event_settings = {
     'JOIN_ROOM':{replyText:'欢迎$$进入直播间',tip:false,reply:false,tts:false},
     'FOLLOW_ROOM':{replyText:'[花]感谢$$关注直播间',tip:true,reply:true,tts:false},
     'GIFT':{replyText:'感谢$$投喂的$$',tip:true,reply:false,tts:false},
-    'LIKE_ROOM':{replyText:'感谢$$点赞直播间',tip:false,reply:false,tts:false},
+    'LIKE_ROOM':{replyText:'感谢$$点赞直播间',tip:true,reply:false,tts:false},
     'RED_POCKET':{replyText:'感谢$$的红包',tip:true,reply:false,tts:false},
     'GUARD_BUY':{replyText:'万分感谢$$上舰',tip:true,reply:false,tts:false},
     'ROOM_ADMIN_ENTRANCE':{replyText:'恭喜$$成为房管',tip:true,reply:false,tts:false},
@@ -136,13 +136,9 @@ export const default_event_settings = {
 //查询事件回复
 export async function get_event_settings(db,roomid){
     let sql = `select event_settings from rooms_setting where roomid='${roomid}'`;
-    const ds = await db.select(sql);
-    const event_settings = ds['event_settings']
-    if (event_settings){
-        return event_settings
-    }else{
-        return default_event_settings
-    }
+    const datas = await db.select(sql);
+    console.log(datas)
+    return datas.length!=0?JSON.parse(datas[0].event_settings) || default_event_settings:default_event_settings
 }
 //保存事件回复
 export async function save_event_settings(db,room_id,datas){

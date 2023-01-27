@@ -396,20 +396,21 @@ async function layout_danmu_win() {
   const wins = getAll();
   let x = 0
   let y = 0;
-  wins.forEach(win=>{
-    if(win.label.startsWith('danmu')){
+  wins.forEach(win => {
+    if (win.label.startsWith('danmu')) {
       win.minimize();
-        win.unminimize();
-       win.outerSize().then(size=>{
-        if(x+size.width > m_size.width){
+      win.unminimize();
+      win.outerSize().then(size => {
+        if (x + size.width > m_size.width) {
           y += size.height
           x = 0
         }
         win.setPosition(new PhysicalPosition(x, y).toLogical(scaleFactor));
+        // win.unminimize();
         win.setFocus();
 
         x += size.width
-       })
+      })
     }
   })
 }

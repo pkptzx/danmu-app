@@ -35,7 +35,7 @@ const router = createRouter({
       component: () => import("../views/subtitles.vue"),
     },
     {
-      path: "/settings/reply",
+      path: "/settings/reply/:room_id",
       name: "SettingReply",
       component: () => import("../views/SettingReply.vue"),
     },
