@@ -56,10 +56,10 @@ Rust中使用的库:
 ```console
 cargo install tauri-cli
 ```
-3. 需要cmake,并设置环境变量
-```powershell
-[Environment]::SetEnvironmentVariable("path", "G:\cmake\bin;"+$env:path)
-```
+~~3. 需要cmake,并设置环境变量~~  
+~~```powershell~~  
+[Environment]::SetEnvironmentVariable("path", "cmake\bin;"+$env:path)  
+~~```~~
 
 ### 步骤
 1. 以 Debug 模式运行
@@ -69,7 +69,7 @@ yarn tauri dev
 >生成的可执行文件路径: `danmu-app\src-tauri\target\debug\danmu-app.exe`  
 >不建议分发此文件,体积较大,未编译优化,仅作为开发阶段测试调试
 
-1. 打包
+2. 打包
 ```console
 yarn tauri build
 ```
@@ -77,7 +77,7 @@ yarn tauri build
 >生成的可执行文件路径: `danmu-app\src-tauri\target\release\danmu-app.exe`
 
 ## 可用平台
->都可以支持,我只是懒得编译,注:非Windows会缺少很小一部分小功能.
+>暂时只有win,兼容性的代码我懒得写...也没有mac做测试
 - [x] Windows
 - [ ] macOS (WIP)
 - [ ] Linux (WIP)
