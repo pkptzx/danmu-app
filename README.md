@@ -77,7 +77,7 @@ yarn tauri build
 >生成的可执行文件路径: `danmu-app\src-tauri\target\release\danmu-app.exe`
 
 ## 可用平台
->都可以支持,我只是懒得编译
+>都可以支持,我只是懒得编译,注:非Windows会缺少很小一部分小功能.
 - [x] Windows
 - [ ] macOS (WIP)
 - [ ] Linux (WIP)
