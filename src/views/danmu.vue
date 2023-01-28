@@ -149,8 +149,6 @@ import { fetch, Body,ResponseType } from '@tauri-apps/api/http';
 library.add(faHatWizard, faUserSecret, faCommentAlt)
 
 moveWindow(Position.BottomRight)
-// TODO: 自动回复,开启和设置,是否开启语音播报,可以设置回复内容,$$表示名字,关注,点赞,舰长进入直播间,礼物,房管,红包?
-// TODO: 关键字回复,开启和设置
 // TODO: SC 礼物 展示
 let db;
 const $q = useQuasar()
@@ -200,8 +198,23 @@ onMounted(async () => {
     event_settings.value = await DataBase.get_event_settings(db, room_id)
 
     //接收全局消息
-    unlisten = await listen<string>('dmMsg', (event: any) => {
-        console.log(`Got dmMsg: ${JSON.stringify(event.payload)}`);
+    unlisten = await listen<string>('EVENTMSG_reload_room_settings', async (event: any) => {
+        console.log(`Got Msg:EVENTMSG_reload_room_settings ${JSON.stringify(event.payload)}`);
+        const param = event.payload;
+        switch (param.type) {
+            case 'event_settings':
+                event_settings.value = await DataBase.get_event_settings(db, room_id)
+                break;
+            case 'keyword_settings':
+                // event_settings.value = await DataBase.get_event_settings(db, room_id)
+                break;
+            case 'robot_settings':
+                // event_settings.value = await DataBase.get_event_settings(db, room_id)
+                break;
+            default:
+                break;
+        }
+        
     });
 
     const handler: MsgHandler = {
@@ -376,14 +389,12 @@ function parseReplyDanmu(replyTemplate,uname,action){
     //返回['弹幕','提示(完整不截断)']
     const rst = []
     let reply = '';
-    const no_pad_len = replyTemplate.replaceAll('$$','').length;
-    const count = s.match(/\$\$/g).length
     if(action){
         //感谢$$投喂的$$[哇]
         const tmp = replyTemplate.replaceAll(/(.*\$\$.+)(\$\$)(.*)/g,'$1'+action+'$3')
-        reply = uname.length > 20-no_pad_len ? tmp.replace('$$', uname.slice(0,20-no_pad_len-3)+'...') : tmp.replace('$$',uname)
+        reply = uname.length > 20-tmp.length-2 ? tmp.replace('$$', uname.slice(0,20-tmp.length-2-3)+'...') : tmp.replace('$$',uname)
     }else{
-        reply = uname.length > 20-no_pad_len ? replyTemplate.replace('$$', uname.slice(0,20-no_pad_len-3)+'...') : replyTemplate.replace('$$',uname)
+        reply = uname.length > 20-replyTemplate.length-2 ? replyTemplate.replace('$$', uname.slice(0,20-replyTemplate.length-2-3)+'...') : replyTemplate.replace('$$',uname)
     }
     rst.push(reply)
     //tip用于展示提示和tts语音播报
@@ -649,16 +660,16 @@ watch(chatterbox, (newTop) => {
     if(newTop){
         DataBase.get_room_chatterbox(db, room_id).then(datas => {
             console.log(datas)
-            const chatters = datas.length!=0 ? JSON.parse(datas[0].chatterbox) : []
-            if (chatters && chatters.length > 0) {
+            if (datas.length!=0) {
+                const chatters = JSON.parse(datas[0].chatterbox)
                 clearTimeout(chatterbox_timer);
                 (function loop_send_chatter() {
-                    send_danmu_with_notify(room_id, chatters[msg_idx++].msg);
-                    if (msg_idx >= chatters.length) {
+                    send_danmu_with_notify(room_id, chatters.chatterboxes[msg_idx++].msg);
+                    if (msg_idx >= chatters.chatterboxes.length) {
                         msg_idx = 0
-                        chatterbox_timer = setTimeout(loop_send_chatter, 10000);
+                        chatterbox_timer = setTimeout(loop_send_chatter, chatters.whole_interval*60*1000);
                     }else{
-                        chatterbox_timer = setTimeout(loop_send_chatter, 2000);
+                        chatterbox_timer = setTimeout(loop_send_chatter, chatters.item_interval*1000);
                     }
                 })();
             } else {

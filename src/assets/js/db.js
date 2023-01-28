@@ -113,7 +113,7 @@ export async function get_danmu_msg(db,filter,pageNum,pageSize){
 }
 //查询话痨
 export async function get_room_chatterbox(db,roomid){
-    let sql = `select chatterbox from rooms_setting where roomid='${roomid}'`;
+    let sql = `select chatterbox from rooms_setting where roomid='${roomid}' and chatterbox not null`;
     return db.select(sql);
 }
 //保存话痨

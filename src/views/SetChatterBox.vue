@@ -1,9 +1,13 @@
 <template>
     <Window :title="'话痨模式' + room_id" icon="/vite.svg" hide-maximize hide-minimize>
-        <div class="q-pa-md" style="max-width: 300px">
-            <div class="q-gutter-md">
+        <div class="q-pa-xs" style="max-width: 300px">
+            <div class="q-gutter-sm">
+                <div class="row justify-around">
+                <q-input v-model.number="whole_interval" prefix="整体间隔:" suffix="分钟" dense type="text" style="max-width: 121px"></q-input>
+                <q-input v-model.number="item_interval" prefix="每条间隔:" suffix="秒" dense type="text" mask="###" no-error-icon :rules="[ val => val >= 1 || '小与1秒没什么意义']" style="max-width: 110px"></q-input>
+            </div>
                 <template v-for="(item, index) in chatterboxes" :key="index">
-                    <q-input ref="inputsRef" v-model="item.msg" filled type="text" :rules="[ val => val.length <= 20 || '最多只能输入20个字符']">
+                    <q-input hide-bottom-space ref="inputsRef" v-model="item.msg" filled type="text" :rules="[ val => val.length <= 20 || '最多只能输入20个字符']">
                         <template v-slot:append>
                             <q-toggle v-model="item.enable" true-value="true" false-value="false" color="green" />
                         </template>
@@ -29,6 +33,8 @@ let room_id = ref();
 let db;
 const chatterboxes = ref([])
 const inputsRef = ref([])
+const whole_interval = ref(5)
+const item_interval = ref(1)
 onMounted(async () => {
     console.log(location.href);
     const route = useRoute()
@@ -36,9 +42,11 @@ onMounted(async () => {
     db = await DataBase.init_db()
     DataBase.get_room_chatterbox(db, room_id.value).then(datas => {
         console.log(datas)
-        const chatters = datas.length!=0 ? JSON.parse(datas[0].chatterbox) : []
-        if (chatters && chatters.length > 0) {
-            chatterboxes.value = chatters
+        if (datas.length!=0) {
+            const chatters = JSON.parse(datas[0].chatterbox)
+            whole_interval.value = chatters.whole_interval
+            item_interval.value = chatters.item_interval
+            chatterboxes.value = chatters.chatterboxes
         } else {
             chatterboxes.value = [{
                 roomid: room_id.value,
@@ -57,7 +65,7 @@ onMounted(async () => {
     })
 })
 async function onAdd(){
-    chatterboxes.value.push({roomid:room_id.value,msg:'',enable:'true'})
+    chatterboxes.value.push({roomid:room_id.value,msg:'进群,你懂得~',enable:'true'})
 }
 async function onSave() {
     let hasErr = false
@@ -76,7 +84,7 @@ async function onSave() {
         return;
     }
     chatterboxes.value = chatterboxes.value.filter(f => f.msg.trim() != '')
-    DataBase.save_room_chatterbox(db, room_id.value, chatterboxes.value).then(count => {
+    DataBase.save_room_chatterbox(db, room_id.value, {whole_interval:whole_interval.value,item_interval:item_interval.value,'chatterboxes':chatterboxes.value}).then(count => {
         if (count > 0) {
             $q.notify({
                 message: `保存成功`,
