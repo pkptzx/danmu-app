@@ -648,24 +648,27 @@ function clipboard_text(text){
 }
 
 onUnmounted(async () => {
+    clearTimeout(chatterbox_timer)
     await unlisten();
     danmuClient.close();
 });
 watch(wintop, (newTop) => {
     appWindow.setAlwaysOnTop(newTop);
 })
+
 let chatterbox_timer;
-let msg_idx = 0;
 watch(chatterbox, (newTop) => {
     if(newTop){
         DataBase.get_room_chatterbox(db, room_id).then(datas => {
             console.log(datas)
             if (datas.length!=0) {
+                let msg_idx = 0;
                 const chatters = JSON.parse(datas[0].chatterbox)
+                const chatterboxes = chatters.chatterboxes.filter(chatter=>chatter.enable === 'true')
                 clearTimeout(chatterbox_timer);
                 (function loop_send_chatter() {
-                    send_danmu_with_notify(room_id, chatters.chatterboxes[msg_idx++].msg);
-                    if (msg_idx >= chatters.chatterboxes.length) {
+                    send_danmu_with_notify(room_id, chatterboxes[msg_idx++].msg);
+                    if (msg_idx >= chatterboxes.length) {
                         msg_idx = 0
                         chatterbox_timer = setTimeout(loop_send_chatter, chatters.whole_interval*60*1000);
                     }else{
