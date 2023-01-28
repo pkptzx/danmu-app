@@ -55,7 +55,7 @@
                                 <q-item tag="label" v-ripple>
                                     <q-item-section>
                                         <q-item-label>收到礼物</q-item-label>
-                                        <q-item-label caption>暂时包括所有人</q-item-label>
+                                        <q-item-label caption>暂时包括所有礼物</q-item-label>
                                     </q-item-section>
                                     <q-item-section>
                                         <input type="text" v-model="event_settings.GIFT.replyText" />
@@ -73,7 +73,6 @@
                                 <q-item tag="label" v-ripple>
                                     <q-item-section>
                                         <q-item-label>点赞直播间</q-item-label>
-                                        <q-item-label caption>暂时包括所有人</q-item-label>
                                     </q-item-section>
                                     <q-item-section>
                                         <input type="text" v-model="event_settings.LIKE_ROOM.replyText" />
@@ -91,7 +90,6 @@
                                 <q-item tag="label" v-ripple>
                                     <q-item-section>
                                         <q-item-label>发送红包</q-item-label>
-                                        <q-item-label caption>暂时包括所有人</q-item-label>
                                     </q-item-section>
                                     <q-item-section>
                                         <input type="text" v-model="event_settings.RED_POCKET.replyText" />
@@ -109,7 +107,6 @@
                                 <q-item tag="label" v-ripple>
                                     <q-item-section>
                                         <q-item-label>上舰</q-item-label>
-                                        <q-item-label caption>暂时包括所有人</q-item-label>
                                     </q-item-section>
                                     <q-item-section>
                                         <input type="text" v-model="event_settings.GUARD_BUY.replyText" />
@@ -127,7 +124,6 @@
                                 <q-item tag="label" v-ripple>
                                     <q-item-section>
                                         <q-item-label>设立房管</q-item-label>
-                                        <q-item-label caption>暂时包括所有人</q-item-label>
                                     </q-item-section>
                                     <q-item-section>
                                         <input type="text" v-model="event_settings.ROOM_ADMIN_ENTRANCE.replyText" />
@@ -145,7 +141,6 @@
                                 <q-item tag="label" v-ripple>
                                     <q-item-section>
                                         <q-item-label>撤销房管</q-item-label>
-                                        <q-item-label caption>暂时包括所有人</q-item-label>
                                     </q-item-section>
                                     <q-item-section>
                                         <input type="text" v-model="event_settings.ROOM_ADMIN_REVOKE.replyText" />
@@ -160,10 +155,44 @@
                                         <q-toggle color="blue" dense v-model="event_settings.ROOM_ADMIN_REVOKE.tts" label="语音播报" />
                                     </q-item-section>
                                 </q-item>
+                                <q-item tag="label" v-ripple>
+                                    <q-item-section>
+                                        <q-item-label>开播</q-item-label>
+                                    </q-item-section>
+                                    <q-item-section>
+                                        <input type="text" v-model="event_settings.LIVE_OPEN.replyText" />
+                                    </q-item-section>
+                                    <q-item-section side>
+                                        <q-toggle color="blue" dense v-model="event_settings.LIVE_OPEN.tip" label="提示" />
+                                    </q-item-section>
+                                    <q-item-section side style="">
+                                        <q-toggle color="blue" dense v-model="event_settings.LIVE_OPEN.reply" label="回复" />
+                                    </q-item-section>
+                                    <q-item-section side>
+                                        <q-toggle color="blue" dense v-model="event_settings.LIVE_OPEN.tts" label="语音播报" />
+                                    </q-item-section>
+                                </q-item>
+                                <q-item tag="label" v-ripple>
+                                    <q-item-section>
+                                        <q-item-label>下播</q-item-label>
+                                    </q-item-section>
+                                    <q-item-section>
+                                        <input type="text" v-model="event_settings.LIVE_CLOSE.replyText" />
+                                    </q-item-section>
+                                    <q-item-section side>
+                                        <q-toggle color="blue" dense v-model="event_settings.LIVE_CLOSE.tip" label="提示" />
+                                    </q-item-section>
+                                    <q-item-section side style="">
+                                        <q-toggle color="blue" dense v-model="event_settings.LIVE_CLOSE.reply" label="回复" />
+                                    </q-item-section>
+                                    <q-item-section side>
+                                        <q-toggle color="blue" dense v-model="event_settings.LIVE_CLOSE.tts" label="语音播报" />
+                                    </q-item-section>
+                                </q-item>
                                 <q-item tag="div">
                                     <q-item-section></q-item-section>
                                     <q-item-section side>
-                                        <q-btn color="secondary" icon="cancel" label="取消" @click="onClose" />
+                                        <q-btn color="secondary" icon="close" label="关闭" @click="onClose" />
                                     </q-item-section>
                                     <q-item-section side>                                    
                                     <q-btn color="primary" icon="save" label="保存" @click="on_save_event_settings" />
@@ -213,6 +242,7 @@ import Window from '../components/Window.vue';
 import * as DataBase from '../assets/js/db.js';
 const event_settings = ref(DataBase.default_event_settings)
 import { appWindow } from "@tauri-apps/api/window";
+import { emit,listen } from '@tauri-apps/api/event';
 import { useQuasar } from 'quasar'
 const $q = useQuasar()
 const tab = ref('event_reply')
@@ -228,6 +258,7 @@ onMounted(async () => {
 async function on_save_event_settings(){
     DataBase.save_event_settings(db, roomid.value ,event_settings.value).then(count => {
         if (count > 0) {
+            emit('EVENTMSG_reload_room_settings',{type: 'event_settings'})
             $q.notify({
                 message: `保存成功`,
                 type: 'positive',
