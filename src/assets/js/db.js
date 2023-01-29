@@ -126,12 +126,14 @@ export async function save_room_chatterbox(db,room_id,datas){
 export const default_event_settings = {
     'JOIN_ROOM':{replyText:'欢迎$$进入直播间',tip:false,reply:false,tts:false},
     'FOLLOW_ROOM':{replyText:'[花]感谢$$关注直播间',tip:true,reply:true,tts:false},
+    'GUARD_BUY':{replyText:'[赞]万分感谢$$上舰',tip:true,reply:false,tts:false},
+    'RED_POCKET':{replyText:'[赞]感谢$$的红包',tip:true,reply:false,tts:false},
     'GIFT':{replyText:'感谢$$投喂的$$',tip:true,reply:false,tts:false},
-    'LIKE_ROOM':{replyText:'感谢$$点赞直播间',tip:true,reply:false,tts:false},
-    'RED_POCKET':{replyText:'感谢$$的红包',tip:true,reply:false,tts:false},
-    'GUARD_BUY':{replyText:'万分感谢$$上舰',tip:true,reply:false,tts:false},
-    'ROOM_ADMIN_ENTRANCE':{replyText:'恭喜$$成为房管',tip:true,reply:false,tts:false},
-    'ROOM_ADMIN_REVOKE':{replyText:'逗比$$被撤销房管',tip:true,reply:false,tts:false},
+    'LIKE_ROOM':{replyText:'[哇]感谢$$点赞直播间',tip:true,reply:false,tts:false},
+    'ROOM_ADMIN_ENTRANCE':{replyText:'[爱]恭喜$$成为房管',tip:true,reply:false,tts:false},
+    'ROOM_ADMIN_REVOKE':{replyText:'[妙]逗比$$被撤销房管',tip:true,reply:false,tts:false},
+    'LIVE_OPEN':{replyText:'[哇]开播啦...',tip:true,reply:false,tts:false},
+    'LIVE_CLOSE':{replyText:'[呆]主播已跑路...',tip:true,reply:false,tts:false},
 }
 //查询事件回复
 export async function get_event_settings(db,roomid){
