@@ -386,8 +386,6 @@ async function autoreply(msg){
 }
 // 根据配置解析弹幕
 function parseReplyDanmu(replyTemplate,uname,action){
-    //返回['弹幕','提示(完整不截断)']
-    const rst = []
     let reply = '';
     if(action){
         //感谢$$投喂的$$[哇]
@@ -396,14 +394,25 @@ function parseReplyDanmu(replyTemplate,uname,action){
     }else{
         reply = uname.length > 20-replyTemplate.length-2 ? replyTemplate.replace('$$', uname.slice(0,20-replyTemplate.length-2-3)+'...') : replyTemplate.replace('$$',uname)
     }
-    rst.push(reply)
-    //tip用于展示提示和tts语音播报
-    let tip = replyTemplate.replace('$$',uname);
+    return reply
+}
+function parseReplyText(replyTemplate,uname,action){
+    let tip = replyTemplate.replaceAll(/\[.+?\]/g,'').replace('$$',uname);
     if(action){
         tip = tip.replace('$$',action)
     }
-    rst.push(tip)
-    return rst;
+    return tip;
+}
+function render(str,obj){
+    let keys = [];
+    for(let i in obj){
+      keys.push(i)
+    }
+    keys.map((e)=>{
+      let reg = new RegExp("\\${"+e+"}","g");
+      str = str.replace(reg, obj[e])
+    })
+    return str;
 }
 function send_danmu_with_notify(room_id,msg){
     bApi.send_danmu(room_id, msg).then((resp: any) => {
@@ -560,7 +569,7 @@ function show_reply_setting(){
   settingsReplyWindow = new WebviewWindow('settingsReply', {
     url: `/settings/reply/${room_id}`,
     "fullscreen": false,
-    "height": 600,
+    "height": 664,
     "resizable": true,
     "title": "设置回复",
     "width": 800,
@@ -578,32 +587,6 @@ function show_reply_setting(){
     settingsReplyWindow.unminimize();
     settingsReplyWindow.setFocus();
   });
-    
-    // $q.dialog({
-    //     title: '选择需要开启的自动回复',
-    //     message: '请选择需要开启的自动回复.',
-    //     options: {
-    //         class:'text-center',
-    //       type: 'toggle',
-    //       model: [],
-    //       isValid: model => model.includes('opt1') && model.includes('opt2'),
-    //       inline: true,
-    //     dense: true,
-    //     color: 'green',
-    //       items: [
-    //         { label: '点赞回复', value: 'opt1' },
-    //         { label: '关注回复', value: 'opt2' },
-    //         { label: '礼物回复', value: 'opt3' },
-    //         { label: '房管事件回复', value: 'opt3' },
-    //         { label: '上舰回复', value: 'opt3' },
-    //         { label: '红包事件回复', value: 'opt3' },
-    //       ]
-    //     },
-    //     cancel: true,
-    //     persistent: true
-    //   }).onOk(data => {
-    //     // console.log('>>>> OK, received', data)
-    //   })
 }
 
 function set_context_param(item,evt){
@@ -701,6 +684,20 @@ async function open_borrower(uid){
   el.click();
   document.body.removeChild(el);
 }
+function get(obj, key) {
+    return key.split(".").reduce(function(o, x) {
+        return (typeof o == "undefined" || o === null) ? o : o[x];
+    }, obj);
+}
+function has(obj, key) {
+    return key.split(".").every(function(x) {
+        if(typeof obj != "object" || obj === null || ! x in obj)
+            return false;
+        obj = obj[x];
+        return true;
+    });
+}
+
 </script>
 
 <style scoped>
