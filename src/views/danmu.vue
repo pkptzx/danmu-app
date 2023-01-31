@@ -143,8 +143,6 @@ import * as DataBase from '../assets/js/db.js';
 import { useQuasar } from 'quasar'
 import 'animate.css';
 import * as bApi from '../assets/js/biliApi.js';
-import * as rasterizeHTML from 'rasterizehtml';
-import domtoimage from 'dom-to-image'
 import { fetch, Body,ResponseType } from '@tauri-apps/api/http';
 library.add(faHatWizard, faUserSecret, faCommentAlt)
 
@@ -594,37 +592,6 @@ function set_context_param(item,evt){
     context_el = evt.srcElement
     console.log('show_context>>>',item,evt)
 
-}
-// 复制元素图到剪贴板，透明的会展示成黑色。弃用
-function clipboard_data(el) {
-    // domtoimage.toBlob(el)
-    // .then(function (blob) {
-    //     console.log(blob)
-    //     const imgSrc = window.URL.createObjectURL(blob);
-    //     let imgtest = document.getElementById("imgtest")
-    //     imgtest.src = imgSrc;
-    //     // navigator.clipboard.write([
-    //     //         new window.ClipboardItem({
-    //     //             [blob['type']]: blob
-    //     //         })
-    //     //     ]);
-    // })
-    // .catch(function (error) {
-    //     console.error('生成失败', error);
-    // });
-    domtoimage.toPng(el)
-        .then(function (dataUrl) {
-            console.log(dataUrl);
-            navigator.clipboard.write([
-                new window.ClipboardItem({
-                    [blob['type']]: blob
-                })
-            ]);
-
-        })
-        .catch(function (error) {
-            console.error('oops, something went wrong!', error);
-        });
 }
 function clipboard_text(text){
     navigator.clipboard.writeText(text)
