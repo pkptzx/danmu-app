@@ -536,8 +536,6 @@ async function tts(txt) {
         <q-card class="my-card" v-for="room in hot_rooms" :key="room.room_id">
           <q-img :src="room.cover_from_user" @mouseenter="$event.target.children[1].children[0].src = room.keyframe"
             @mouseleave="$event.target.children[1].children[0].src = room.cover_from_user">
-            <div class="absolute-full text-subtitle2 flex flex-center show-caption">
-            </div>
           </q-img>
           <q-item>
             <q-item-section avatar>
@@ -560,8 +558,6 @@ async function tts(txt) {
         <q-card class="my-card" v-for="room in rooms" :key="room.room_id">
           <q-img :src="room.cover_from_user" @mouseenter="$event.target.children[1].children[0].src = room.keyframe"
             @mouseleave="$event.target.children[1].children[0].src = room.cover_from_user">
-            <div class="absolute-full text-subtitle2 flex flex-center show-caption">
-            </div>
           </q-img>
           <q-item>
             <q-item-section avatar>
@@ -584,8 +580,6 @@ async function tts(txt) {
         <q-card class="my-card" v-for="room in followrooms" :key="room.roomid">
           <q-img :src="room.pic" @mouseenter="$event.target.children[1].children[0].src = room.cover"
             @mouseleave="$event.target.children[1].children[0].src = room.pic">
-            <div class="absolute-full text-subtitle2 flex flex-center show-caption">
-            </div>
           </q-img>
           <q-item>
             <q-item-section avatar>
