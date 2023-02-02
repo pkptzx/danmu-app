@@ -130,8 +130,9 @@ async function open_danmu_query(){
   });
 }
 async function get_my_follow_live_rooms(){
+  followrooms.value = []
   bApi.getLiveUps().then((resp: any)=>{
-    console.log(resp);
+    console.log(resp);    
     followrooms.value = resp.data.data.list
   });
 }
