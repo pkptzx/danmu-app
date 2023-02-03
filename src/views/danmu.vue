@@ -259,6 +259,7 @@ onMounted(async () => {
                 }
                 addData(msg)
             } else if (body.action == 'follow') {
+                console.log('follow',msg);
                 if (!show_follow.value) {
                     return;
                 }
@@ -376,7 +377,7 @@ async function autoreply(msg){
     if(!is_autoreply.value){
         return;
     }
-    event_settings.value.JOIN_ROOM.replyText
+    // event_settings.value.JOIN_ROOM.reply
     if (msg.type == 'INTERACT_WORD' && msg.body.action == 'follow'){
         send_danmu_with_notify(room_id,`[花]感谢${msg.body.user.uname.length>12 ? (msg.body.user.uname.substring(0,9) + '...') :msg.body.user.uname}的关注`)
     }else if (msg.cmd == 'LIKE_INFO_V3_CLICK'){
@@ -779,4 +780,25 @@ function has(obj, key) {
     background: linear-gradient(to left, #A0F1EA -200%, #e3a5f0 -100%, #A0F1EA 0%, #e3a5f0 100%);
   }
 }
+
+.animation-ripple {
+    animation: ripple 0.7s linear infinite;
+}
+
+@keyframes ripple {
+    0% {
+        box-shadow: 0 0 0 0 rgba(101, 255, 120, 0.3),
+            0 0 0 1em rgba(101, 255, 120, 0.3),
+            0 0 0 3em rgba(101, 255, 120, 0.3),
+            0 0 0 5em rgba(101, 255, 120, 0.3);
+    }
+
+    100% {
+        box-shadow: 0 0 0 1em rgba(101, 255, 120, 0.3),
+            0 0 0 3em rgba(101, 255, 120, 0.3),
+            0 0 0 5em rgba(101, 255, 120, 0.3),
+            0 0 0 8em rgba(101, 255, 120, 0);
+    }
+}
+
 </style>
