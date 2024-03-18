@@ -19,7 +19,7 @@ serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.2", features = ["api-all"] }
 tauri-plugin-positioner = "1.0"
 base64 = "0.21.0"
-aes-gcm = "0.10.1"
+aes-gcm = "0.10.3"
 rusqlite = { version = "0.28.0", features = ["bundled"] }
 thiserror = "1.0"
 # clippers = "0.1.2"
