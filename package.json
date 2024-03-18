@@ -23,7 +23,7 @@
     "ag-grid-vue3": "^28.2.1",
     "animate.css": "^4.1.1",
     "blive-message-listener": "^0.4.1",
-    "crypto-js": "^4.1.1",
+    "crypto-js": "^4.2.0",
     "pako": "^2.1.0",
     "pinia": "^2.0.28",
     "quasar": "^2.11.4",
